@@ -6,6 +6,16 @@ var app = koa();
 
 var bitmaps;
 
+var currentBitmapId = 'dino_top';
+
+function currentBitmap() {
+  for (var i=0; i<bitmaps.length; ++i) {
+    if (bitmaps[i].id === currentBitmapId) return bitmaps[i];
+  }
+
+  return null;
+}
+
 reset();
 
 
@@ -19,6 +29,12 @@ app.use(function *() {
   if (this.path === '/favicon.ico') {
     this.status = 404;
     return;
+  }
+
+  // Set current image and reload
+  if (this.path.substr(0,5) === '/set/') {
+    currentBitmapId = this.path.substr(5);
+    reset();
   }
 
   // Update bitmap
@@ -57,9 +73,9 @@ app.use(function *() {
   // Serve UI
   this.type = 'text/html';
   this.body = ui
-    .replace(/\[\/\*BITMAP\*\/\]/g, JSON.stringify(bitmaps[0].data) );
+    .replace(/\[\/\*BITMAP\*\/\]/g, JSON.stringify(currentBitmap()) );
 
-  console.log(bitmap2pif(bitmaps[0].data));
+  console.log(bitmap2pif(currentBitmap().data));
 });
 
 app.listen(80);
@@ -68,10 +84,12 @@ app.listen(80);
 
 
 function reset() {
+  var newbitmap = pif2bitmap( fs.readFileSync('./sprites/' +currentBitmapId+ '.txt').toString() );
+
   bitmaps = [{
-    id: 'dino_top',
-    w: 20, h: 20,
-    data: pif2bitmap( fs.readFileSync('./dino_top.txt').toString() )
+    id: currentBitmapId,
+    w: newbitmap[0].length, h: newbitmap.length,
+    data: newbitmap
   }];
 }
 

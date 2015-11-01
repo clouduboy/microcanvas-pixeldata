@@ -27,12 +27,13 @@
     </canvas>
     <textarea id="spriteoutput" contenteditable="true" rows="10" cols="80"></textarea>
     <script>
-      window.bitmap_id = 'dino_top';
-      window.bitmap = [/*BITMAP*/];
+      window.bitmapdata = [/*BITMAP*/];
+      window.bitmap = bitmapdata.data;
 
       var canvas = document.getElementById("draw");
-      canvas.width = canvas.height = Math.min(window.innerWidth,window.innerHeight);
-      bs = Math.floor( canvas.width / 20 );
+      canvas.width = Math.min(window.innerWidth,window.innerHeight);
+      canvas.height = canvas.width * (bitmapdata.h / bitmapdata.w);
+      var bs = Math.floor( canvas.width / bitmapdata.w );
 
       var C = canvas.getContext("2d");
 
@@ -106,15 +107,15 @@
         }, "");
 
         // Build transfer string
-        var transfer = { id: bitmap_id,w: w, h: h, data: bitmap }; // TODO: use "bytes" instead
+        var transfer = { id: bitmapdata.id, w: bitmapdata.w, h: bitmapdata.h, data: bitmap }; // TODO: use "bytes" instead
 
         // Update sprite data in output textarea
-        document.getElementById("spriteoutput").textContent = "// w: " +w+ " h: " +h
-          + "\nPROGMEM const unsigned char " +bitmap_id+ "[] = { " +sprite+ " };\n";
+        document.getElementById("spriteoutput").textContent = "// w: " +bitmapdata.w+ " h: " +bitmapdata.h
+          + "\nPROGMEM const unsigned char " +bitmapdata.id+ "[] = { " +sprite+ " };\n";
 
 
-        console.log(bitmap2pif(window.bitmap, window.bitmap_id));
-        console.log("Dimensions:\n", w, "x", h);
+        console.log(bitmap2pif(bitmap, bitmapdata.id));
+        console.log("Dimensions:\n", bitmapdata.w, "x", bitmapdata.h);
         console.log("Sprite data:\n", "{ " +sprite+ " }");
         console.log("Transfer data:\n",JSON.stringify(transfer));
         console.log(JSON.stringify(bitmap).length, JSON.stringify(bytes).length);
@@ -137,11 +138,13 @@
 
       function display() {
         var x,y;
+        C.clearRect(0,0,canvas.width,canvas.height);
+        console.log("Displayed");
 
         y = 0;
-        while (y < 20) {
+        while (y < bitmapdata.h) {
           x = 0;
-          while (x < 20) {
+          while (x < bitmapdata.w) {
             if (bitmap[y][x]) {
               C.fillRect(bs*x,bs*y, bs-1,bs-1);
             } else {
@@ -174,6 +177,19 @@
           update = JSON.parse (r.responseText);
 
           bitmap = update.data;
+
+          // Update canvas dimensions/blocksize
+          if (bitmapdata.w !== update.w || bitmapdata.h !== update.h) {
+            // Update blocksize
+            bs = Math.floor( canvas.width / bitmapdata.w );
+
+            // Update canvas proportions
+            canvas.height = canvas.width * (update.h / update.w);
+          }
+
+          // Store updated bitmap data
+          bitmapdata = update;
+
           console.log("Bitmap updated:\n", bitmap2pif(bitmap));
 
           // Update sprite data in output textarea
