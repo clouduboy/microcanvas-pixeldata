@@ -26,99 +26,39 @@
     <canvas id="draw" touch-action="none">
     </canvas>
     <textarea id="spriteoutput" contenteditable="true" rows="10" cols="80"></textarea>
+    <script src="/lib.js"></script>
     <script>
-      window.bitmapdata = [/*BITMAP*/];
-      window.bitmap = bitmapdata.data;
+      window.pixels = new PixelData( {/*BITMAP*/} );
 
       var canvas = document.getElementById("draw");
       canvas.width = Math.min(window.innerWidth,window.innerHeight);
-      canvas.height = canvas.width * (bitmapdata.h / bitmapdata.w);
-      var bs = Math.floor( canvas.width / bitmapdata.w );
+      canvas.height = canvas.width * (pixels.h / pixels.w);
+      var bs = Math.floor( canvas.width / pixels.w );
 
       var C = canvas.getContext("2d");
 
-      function bitmap2pif(bitmap, name) {
-        return (name ? "$"+name+"\n" : "") +
-          bitmap.reduce(function(out,row) {
-            out.push(row.join(''));
-            return out;
-          },[]).join('\n').replace(/0/g,'.').replace(/1/g,'#');
-      }
-
-      function pif2bitmap(pif) {
-        var rows = pif.replace(/[^\.\#]+/g," ").trim().split(/\s+/g);
-
-        var matrix = rows.map(function(s) {
-          var i,
-              r = [];
-
-          for (i = 0; i < s.length; ++i) {
-            r.push(s[i] === '#' ? 1 : 0);
-          }
-
-          return r;
-        });
-
-        return matrix;
-      }
-
-      function bitmap2bytes(bitmap) {
-        var x,y,seg,ymax,v;
-        var w = bitmap[0].length, h = bitmap.length;
-        var bytes = [];
-
-        seg = 0;
-        while (seg < h) {
-          for (x = 0; x < w; ++x) {
-            v = 0;
-            ymax = (h-seg < 8 ? h-seg : 8);
-
-            for (y = 0; y < ymax; ++y) {
-              v |= bitmap[seg+y][x] << y;
-            }
-
-            // Save byte values
-            bytes.push(v);
-          }
-
-          seg += 8;
-        }
-
-        return bytes;
-      }
-
-      function bytes2bitmap(bytes,w,h) {
-        // Width / height optional, assume square image
-      }
 
       var newstate;
       function postState() {
         if (!newstate) return;
 
         // Image dimensions
-        var w = bitmap[0].length, h = bitmap.length;
+        var w = pixels.w, h = pixels.h;
 
         // Create bytestream
-        var bytes = bitmap2bytes(bitmap);
-
-         // Create sprite string
-        var sprite = bytes.reduce(function(sprite, v) {
-          return sprite += (sprite === "" ? "" : ", ") + ( v<16 ? "0x0" : "0x" ) + v.toString(16);
-        }, "");
+        var bytes = pixels.bytes;
 
         // Build transfer string
-        var transfer = { id: bitmapdata.id, w: bitmapdata.w, h: bitmapdata.h, data: bitmap }; // TODO: use "bytes" instead
+        var transfer = pixels.serialize();
 
         // Update sprite data in output textarea
-        document.getElementById("spriteoutput").textContent = "// w: " +bitmapdata.w+ " h: " +bitmapdata.h
-          + "\nPROGMEM const unsigned char " +bitmapdata.id+ "[] = { " +sprite+ " };\n";
+        document.getElementById("spriteoutput").textContent = "// w: " +pixels.w+ " h: " +pixels.h
+          + "\nPROGMEM const unsigned char " +pixels.id+ "[] = { " +pixels.sprite+ " };\n";
 
-
-        console.log(bitmap2pif(bitmap, bitmapdata.id));
-        console.log("Dimensions:\n", bitmapdata.w, "x", bitmapdata.h);
-        console.log("Sprite data:\n", "{ " +sprite+ " }");
-        console.log("Transfer data:\n",JSON.stringify(transfer));
-        console.log(JSON.stringify(bitmap).length, JSON.stringify(bytes).length);
+        console.log(pixels.pif);
+        console.log("Dimensions:\n", pixels.w, "x", pixels.h);
+        console.log("Sprite data:\n", "{ " +pixels.sprite+ " }");
+        console.log("Transfer data:\n", JSON.stringify(transfer));
 
 
         // Reset state
@@ -139,13 +79,12 @@
       function display() {
         var x,y;
         C.clearRect(0,0,canvas.width,canvas.height);
-        console.log("Displayed");
 
         y = 0;
-        while (y < bitmapdata.h) {
+        while (y < pixels.h) {
           x = 0;
-          while (x < bitmapdata.w) {
-            if (bitmap[y][x]) {
+          while (x < pixels.w) {
+            if (pixels.bitmap[y][x]) {
               C.fillRect(bs*x,bs*y, bs-1,bs-1);
             } else {
               C.clearRect(bs*x,bs*y, bs-1,bs-1);
@@ -174,37 +113,31 @@
           if (paintstate) return;
 
           // Update bitmap
-          update = JSON.parse (r.responseText);
+          update = new PixelData(JSON.parse(r.responseText));
 
-          bitmap = update.data;
+          // No changes
+          if (pixels.equals(update)) return;
 
           // Update canvas dimensions/blocksize
-          if (bitmapdata.w !== update.w || bitmapdata.h !== update.h) {
+          if (pixels.w !== update.w || pixels.h !== update.h) {
             // Update blocksize
-            bs = Math.floor( canvas.width / bitmapdata.w );
+            bs = Math.floor( canvas.width / pixels.w );
 
             // Update canvas proportions
             canvas.height = canvas.width * (update.h / update.w);
           }
 
           // Store updated bitmap data
-          bitmapdata = update;
+          pixels = update;
 
-          console.log("Bitmap updated:\n", bitmap2pif(bitmap));
+          console.log("Bitmap updated:\n", pixels.pif);
 
           // Update sprite data in output textarea
-          var bytes = bitmap2bytes(bitmap);
-          var sprite = bytes.reduce(function(sprite, v) {
-            return sprite += (sprite === "" ? "" : ", ") + ( v<16 ? "0x0" : "0x" ) + v.toString(16);
-          }, "");
-
-          document.getElementById("spriteoutput").textContent = "// w: " +update.w+ " h: " +update.h
-            + "\nPROGMEM const unsigned char " +update.id+ "[] = { " +sprite+ " };\n";
+          document.getElementById("spriteoutput").textContent = "// w: " +pixels.w+ " h: " +pixels.h
+            + "\nPROGMEM const unsigned char " +pixels.id+ "[] = { " +pixels.sprite+ " };\n";
          };
 
-        r.send(
-          JSON.stringify()
-        );
+        r.send();
 
       }
 
@@ -216,7 +149,7 @@
         return {
           x: Math.floor(x/bs),
           y: Math.floor(y/bs),
-          color: bitmap[ Math.floor(y/bs) ][ Math.floor(x/bs) ]
+          color: pixels.bitmap[ Math.floor(y/bs) ][ Math.floor(x/bs) ]
         };
       }
 
@@ -259,7 +192,7 @@
         if (lastupdate && lastupdate.x == px.x && lastupdate.y == px.y ) return;
 
         // Update pixel under finger according to current paint state
-        bitmap[px.y][px.x] = ( paintstate === "paint" ? 1 : 0 );
+        pixels.bitmap[px.y][px.x] = ( paintstate === "paint" ? 1 : 0 );
 
         // Last updated pixel
         lastupdate = px;

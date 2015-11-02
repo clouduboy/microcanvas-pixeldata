@@ -4,13 +4,21 @@ koaBody   = require('koa-body');
 var fs = require('fs');
 var app = koa();
 
+var PixelData = require('./lib.js');
+
 var bitmaps;
 
 var currentBitmapId = 'dino_top';
 
-function currentBitmap() {
+function currentBitmap(update) {
   for (var i=0; i<bitmaps.length; ++i) {
-    if (bitmaps[i].id === currentBitmapId) return bitmaps[i];
+    if (bitmaps[i].id === currentBitmapId) {
+      if (update instanceof PixelData) {
+        bitmaps[i] = update;
+      }
+
+      return bitmaps[i];
+    }
   }
 
   return null;
@@ -28,6 +36,13 @@ app.use(function *() {
   // No favicon
   if (this.path === '/favicon.ico') {
     this.status = 404;
+    return;
+  }
+
+  // No favicon
+  if (this.path === '/lib.js') {
+    this.type = 'text/javascript';
+    this.body = fs.readFileSync('lib.js').toString();
     return;
   }
 
@@ -52,9 +67,9 @@ app.use(function *() {
     this.body = "OK";
 
     // TODO: multiple bitmap handling
-    bitmaps[0] = this.request.body;
+    currentBitmap(new PixelData(this.request.body));
 
-    console.log(bitmap2pif(bitmaps[0].data));
+    console.log(currentBitmap().pif);
     return;
   }
 
@@ -66,16 +81,16 @@ app.use(function *() {
   // TODO: multiple bitmap_id handling
   if (this.path === '/get') {
     this.type = 'application/json';
-    this.body = JSON.stringify(bitmaps[0]);
+    this.body = JSON.stringify(currentBitmap().serialize());
     return;
   }
 
   // Serve UI
   this.type = 'text/html';
   this.body = ui
-    .replace(/\[\/\*BITMAP\*\/\]/g, JSON.stringify(currentBitmap()) );
+    .replace(/\{\/\*BITMAP\*\/\}/g, JSON.stringify(currentBitmap().serialize()) );
 
-  console.log(bitmap2pif(currentBitmap().data));
+  console.log(currentBitmap().pif);
 });
 
 app.listen(80);
@@ -84,40 +99,9 @@ app.listen(80);
 
 
 function reset() {
-  var newbitmap = pif2bitmap( fs.readFileSync('./sprites/' +currentBitmapId+ '.txt').toString() );
-
-  bitmaps = [{
-    id: currentBitmapId,
-    w: newbitmap[0].length, h: newbitmap.length,
-    data: newbitmap
-  }];
+  bitmaps = [ new PixelData( fs.readFileSync('./sprites/' +currentBitmapId+ '.txt').toString() ) ];
 }
 
 function clear() {
 
-}
-
-function bitmap2pif(bitmap, name) {
-  return (name ? "$"+name+"\n" : "") +
-    bitmap.reduce(function(out,row) {
-      out.push(row.join(''));
-      return out;
-    },[]).join('\n').replace(/0/g,'.').replace(/1/g,'#');
-}
-
-function pif2bitmap(pif) {
-  var rows = pif.replace(/[^\.\#]+/g," ").trim().split(/\s+/g);
-
-  var matrix = rows.map(function(s) {
-    var i,
-        r = [];
-
-    for (i = 0; i < s.length; ++i) {
-      r.push(s[i] === '#' ? 1 : 0);
-    }
-
-    return r;
-  });
-
-  return matrix;
 }
