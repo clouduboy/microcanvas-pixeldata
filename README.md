@@ -14,8 +14,12 @@ straightforward, but is hindered by the missing simple tooling and the
 output requirement of a non-trivial binary pixelformat.
 
 ## How to use?
+_coming soon_
 
 ## Changelog
+- 0.1.2 (2016.02.07) RGBA support
+  - add `bitmapToRgba()` conversion
+  - add `.rgba` output format
 - 0.1.1 (2015.05.03) BMP-import support for
   - support for loading BMP bitmaps (1bit,24bit,32bit)
 - 0.1.0 (2015.05.02) Initial release
