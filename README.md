@@ -17,6 +17,8 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.2.3 (2017.03.07) PixelData byte serialization fix
+  - fix `bitmap2bytes()`
 - 0.2.2 (2017.03.06) PixelData export fix
   - fix `bitmap2pif()`
 - 0.2.1 (2017.03.04) Fixes for use in microcanvas+compiler
