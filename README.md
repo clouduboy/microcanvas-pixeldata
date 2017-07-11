@@ -17,6 +17,8 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.1.4 (2016.07.13) Frames support
+  - add `.frames` support
 - 0.1.3 (2016.02.18) Fix dimensions heuristics
   - fix heuristics of guessing pixelsprite dimensions
 - 0.1.2 (2016.02.07) RGBA support
