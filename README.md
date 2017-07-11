@@ -17,6 +17,9 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.2.1 (2017.03.04) Fixes for use in microcanvas+compiler
+  - fix multiframe support
+  - add `.rgba()` palette override
 - 0.2.0 (2017.03.04) Overhaul, color palette support
   - refactor PIF/C code parsing
   - refactor meta/dimension detection
