@@ -1,0 +1,71 @@
+/* Main body */
+body {
+  background: #080010;
+  color: white;
+
+  padding: 0;
+  margin: 0;
+}
+
+/* Layout */
+main {
+	display: flex;
+}
+
+main > .editor {
+  flex: 1.5;
+}
+
+main > .sidebar {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+}
+
+main > .sidebar > * {
+  background: #112;
+  margin: 0.5em;
+  padding: 0.5em 0.75em;
+  border: 1px solid #225;
+}
+
+/* Codemirror */
+.cm-s-night .CodeMirror-gutters {
+  background: #00000a;
+  border-right: 1px solid #100040;
+}
+.cm-s-night .CodeMirror-linenumber {
+    color: #669;
+}
+
+/* Sidebar */
+.sidebar > .logs {
+  font-family: monospace;
+  line-height: 1.5;
+  font-size: 8pt;
+  overflow-y: auto;
+}
+.sidebar > .logs > * {
+  white-space: pre-wrap;
+  margin-bottom: .5em;
+}
+.sidebar > .logs .error {
+  color: #f22;
+}
+.sidebar > .logs .notice {
+  color: yellow;
+}
+
+/* PixelSprite preview */
+.pspreview {
+  display: block;
+  margin: auto;
+
+  border: 1px solid #fff;
+  background: black;
+
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: crisp-edges;
+}

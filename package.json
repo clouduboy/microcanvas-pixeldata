@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": "flaki/microcanvas-pixeldata"
-  },
+  "repository": "flaki/microcanvas-pixeldata",
   "author": "Flaki (https://twitter.com/slsoftworks)",
   "license": "MIT",
   "bugs": {
@@ -24,6 +23,7 @@
     "lcd",
     "oled"
   ],
-  "dependencies": {
+  "devDependencies": {
+    "microcanvas": "git@github.com:flaki/microcanvas.git"
   }
 }
