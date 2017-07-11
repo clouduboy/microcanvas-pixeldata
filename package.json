@@ -1,6 +1,6 @@
 {
   "name": "pif",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "PIF (Pixeldata Interchange Format) library",
   "main": "lib.js",
   "scripts": {

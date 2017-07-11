@@ -17,6 +17,9 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.3.1 (2017.07.10) Color handling fixes
+  - fix `detectPalette()` 3-hex color parsing
+  - expose more utilities on `PixelData.util`
 - 0.3.0 (2017.06.18) Color/RGBA & loader fixes
   - add import (clone) from `PixelData` object
   - add `rgba2bitmap()` RGBA loader

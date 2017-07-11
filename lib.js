@@ -118,17 +118,13 @@ PixelData.prototype = {
 
         return arr
 
-      // Reduce bit depth to 8-bit
-      }, []).map(
-        pixel => pixel[2]&0xE0 | ((pixel[1]&0xE0)>>3) | ((pixel[0]&0xC0)>>6)
-      )
+      // Reduce bit depth to 8-bit color
+      }, []).map( rgba2c8 )
   },
   get b5g6r5() {
     return bitmap2rgba(this.bitmap, this.palette).reduce( rgbaToPixels, []
-      // Reduce bit depth to 8-bit
-      ).map(
-        pixel => ((pixel[2]&0xF8)<<8) | ((pixel[1]&0xFC)<<3) | ((pixel[0]&0xF8)>>3)
-      )
+      // Reduce bit depth to 16-bit color
+      ).map( rgba2c16 )
   },
   get sprite() {
     return this.bytes.reduce(function(sprite, v) {
@@ -613,7 +609,9 @@ function detectPalette(pal, pdata) {
         switch (h.length-1) {
           case 6:
             i = parseInt(h.substring(1), 16)
-            return [ i>>16&0xFF , i>>8&0xFF , i&0xFF, 255 ]
+            //return [ i>>16&0xFF , i>>8&0xFF , i&0xFF, 255 ]
+            return [ i>>8&0xF , i>>4&0xF , i&0xF, 0xF ].map( hexColor3to6 )
+
           case 3:
             i = parseInt(h.substring(1), 16)
             return [ i>>4&0xF0|i>>8&0xF , i&0xF0|i>>4&0xF , i<<4&0xF0|i&0xF, 255 ]
@@ -706,6 +704,16 @@ function rgbaToPixels(arr,i) {
   return arr
 }
 
+function rgba2c8(pixel) {
+  return pixel[2]&0xE0 | ((pixel[1]&0xE0)>>3) | ((pixel[0]&0xC0)>>6)
+}
+
+function rgba2c16(pixel) {
+  return ((pixel[2]&0xF8)<<8) | ((pixel[1]&0xFC)<<3) | ((pixel[0]&0xF8)>>3)
+}
+function hexColor3to6(component) {
+  return (component<<4|component)
+}
 
 
 
@@ -713,7 +721,7 @@ PixelData.codeToPif = loadCode
 PixelData.loadPif = loadPif
 
 PixelData.util = {
-  cleanComments, arrayInitializerContent, rgba2bitmap
+  cleanComments, arrayInitializerContent, rgba2bitmap, rgba2c16, rgba2c8, hexColor3to6
 }
 
 /*
