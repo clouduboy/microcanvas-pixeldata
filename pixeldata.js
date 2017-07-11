@@ -751,4 +751,6 @@ try {
   module.exports = PixelData;
 }
 
+// Expose library version
+Object.defineProperty(PixelData, 'VERSION', { value: '0.4.0' })
 })(); // IIFE

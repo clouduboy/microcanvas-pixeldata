@@ -1,7 +1,10 @@
-# PIF - Pixeldata Image Format
+# MicroCanvas PixelData
 JavaScript library for handling different pixeldata formats and creating easing
 the creation of monochrome pixelart for embedded devices's displays, such as the
 [Arduboy](//github.com/arduboy/arduboy) Arduino-based gaming device and others.
+
+The library is an integral part of the [MicroCanvas HTML5 game framework](
+  https://github.com/flaki/microcanvas).
 
 ## What is a PIF?
 PIF is short for `P`ixeldata `I`mage `F`ormat, a plain-text-based intermediary
@@ -17,6 +20,9 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.4.0 (2017.07.11) Migrated to new URL
+  - refactor rename library to `microcanvas-pixeldata`
+  - license is now *MIT*
 - 0.3.2 (2017.07.10) Experimental SVG representation
   - add `.svg` PIF representation
 - 0.3.1 (2017.07.10) Color handling fixes

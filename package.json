@@ -1,26 +1,28 @@
 {
-  "name": "pif",
-  "version": "0.3.2",
-  "description": "PIF (Pixeldata Interchange Format) library",
-  "main": "lib.js",
+  "name": "microcanvas-pixeldata",
+  "version": "0.4.0",
+  "description": "PIF (PixelData Interchange Format) library",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/flaki/pif.git"
+  "repository": "flaki/microcanvas-pixeldata"
   },
-  "author": "Flaki",
-  "license": "ISC",
+  "author": "Flaki (https://twitter.com/slsoftworks)",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/flaki/pif/issues"
+    "url": "https://github.com/flaki/microcanvas-pixeldata/issues"
   },
-  "homepage": "https://github.com/flaki/pif#readme",
+  "homepage": "https://github.com/flaki/microcanvas-pixeldata#readme",
   "keywords": [
     "pixeldata",
     "arduino",
     "arduboy",
-    "pif"
+    "pif",
+    "sprite",
+    "pixelart",
+    "lcd",
+    "oled"
   ],
   "dependencies": {
   }
