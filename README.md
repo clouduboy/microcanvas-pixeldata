@@ -17,6 +17,11 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.2.0 (2017.03.04) Overhaul, color palette support
+  - refactor PIF/C code parsing
+  - refactor meta/dimension detection
+  - fix PIF generation
+  - fix multiframe support
 - 0.1.5 (2016.07.17) Fix bitmap loading
   - fix multiframe bitmap loading
 - 0.1.4 (2016.07.13) Frames support
