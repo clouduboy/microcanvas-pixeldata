@@ -17,6 +17,10 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.3.0 (2017.06.18) Color/RGBA & loader fixes
+  - add import (clone) from `PixelData` object
+  - add `rgba2bitmap()` RGBA loader
+  - fix `loadPif()` input fault tolerance
 - 0.2.5 (2017.03.16) Experimental 8/16 bit colors
   - add experimental 8/16 bit color support
   - add bit depth support for `.c()`
