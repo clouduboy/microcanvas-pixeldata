@@ -162,6 +162,19 @@ PixelData.prototype = {
     )
   },
 
+  // SVG!
+  svg: function(scale = 1) {
+    const { w,h } = this
+    const pixels = this.bitmap.map((row,y) =>
+      row.reduce((rects,pixel,x) =>
+        rects+(pixel ? `<rect width="${scale}" height="${scale}" x="${x*scale}" y="${y*scale}"/>\n` : '')
+      ,'')
+    ).join('')
+
+    // todo: color tags
+    return `<svg viewBox="0 0 ${w*scale} ${h*scale}" xmlns="http://www.w3.org/2000/svg"><g>${pixels}</g></svg>`
+  },
+
   // Compare two PixelData objects
   equals: function(other) {
     try {

@@ -17,6 +17,8 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.3.2 (2017.07.10) Experimental SVG representation
+  - add `.svg` PIF representation
 - 0.3.1 (2017.07.10) Color handling fixes
   - fix `detectPalette()` 3-hex color parsing
   - expose more utilities on `PixelData.util`
