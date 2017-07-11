@@ -17,6 +17,10 @@ output requirement of a non-trivial binary pixelformat.
 _coming soon_
 
 ## Changelog
+- 0.2.5 (2017.03.16) Experimental 8/16 bit colors
+  - add experimental 8/16 bit color support
+  - add bit depth support for `.c()`
+  - add `.b3g3r2` & `.b5g6r5` PIF representations
 - 0.2.4 (2017.03.12) Experimental grayscale
   - add experimental color-to-grayscale transformation
   - add color palette metadata handling
