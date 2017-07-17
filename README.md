@@ -17,9 +17,19 @@ straightforward, but is hindered by the missing simple tooling and the
 output requirement of a non-trivial binary pixelformat.
 
 ## How to use?
-_coming soon_
+Try the [Sprite Explorer](
+  http://flaki.github.io/microcanvas-pixeldata/explorer/
+) to see some examples! You can modify the examples live, too,
+and explore the format by experimenting. You can also use the Explorer to
+export a PIF sprite into any of the supported output formats (export code for
+Arduino, or regular image formats like PNG, or even SVG!), and to transform
+regular PNG/GIF/BMP etc. images into PixelSprites (import).
+
 
 ## Changelog
+- 0.4.1 (2017.07.17) node.js interop fix
+  - fix `require()`-s for node apps using the module
+  - add updated README with usage help
 - 0.4.0 (2017.07.11) Migrated to new URL
   - refactor rename library to `microcanvas-pixeldata`
   - license is now *MIT*
