@@ -50,7 +50,8 @@
       theme: "night",
       tabsize: 2,
       lineNumbers: true,
-      lineWrapping: true
+      lineWrapping: true,
+      viewportMargin: Infinity,
     }
   )
 

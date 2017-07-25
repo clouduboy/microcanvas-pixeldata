@@ -1,19 +1,23 @@
 /* Main body */
+html, body {
+  height: 100%;
+  margin: 0; padding: 0;
+}
 body {
   background: #080010;
   color: white;
-
-  padding: 0;
-  margin: 0;
 }
 
 /* Layout */
 main {
 	display: flex;
+  align-items: stretch;
+  height: 100%;
+  overflow: hidden;
 }
 
 main > .editor {
-  flex: 1.5;
+  flex: 2;
 }
 
 main > .sidebar {
@@ -31,6 +35,9 @@ main > .sidebar > * {
 }
 
 /* Codemirror */
+.CodeMirror {
+  height: 100%;
+}
 .cm-s-night .CodeMirror-gutters {
   background: #00000a;
   border-right: 1px solid #100040;
