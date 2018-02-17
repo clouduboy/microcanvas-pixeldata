@@ -6,13 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": "flaki/microcanvas-pixeldata",
+  "repository": "clouduboy/microcanvas-pixeldata",
   "author": "Flaki (https://twitter.com/slsoftworks)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/flaki/microcanvas-pixeldata/issues"
+    "url": "https://github.com/clouduboy/microcanvas-pixeldata/issues"
   },
-  "homepage": "https://github.com/flaki/microcanvas-pixeldata#readme",
+  "homepage": "https://github.com/clouduboy/microcanvas-pixeldata#readme",
   "keywords": [
     "pixeldata",
     "arduino",
@@ -24,6 +24,6 @@
     "oled"
   ],
   "devDependencies": {
-    "microcanvas": "git@github.com:flaki/microcanvas.git"
+    "microcanvas": "https://github.com/clouduboy/microcanvas.git"
   }
 }

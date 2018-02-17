@@ -4,7 +4,7 @@
   'use strict'
 
 function PixelData(input) {
-  console.log('new PixelData('+typeof input+'):', input)
+  //console.log('new PixelData('+typeof input+'):', input)
 
   // Already a PixelData object
   if (typeof input === 'object' && input instanceof PixelData) {
@@ -64,7 +64,7 @@ function PixelData(input) {
     let parsed = loadCode(input)
 
     if (parsed) {
-      console.log('Successfully parsed as Code Snippet', parsed)
+      //console.log('Successfully parsed as Code Snippet', parsed)
       return parsed
     }
 
@@ -73,7 +73,7 @@ function PixelData(input) {
     try {
       let parsed = loadPif(input)
       if (parsed) {
-        console.log('Successfully parsed as PIF imagedata', parsed)
+        //console.log('Successfully parsed as PIF imagedata', parsed)
         return parsed
       }
 
