@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MicroCanvas Pixel Painter</title>
+
+    <link rel="stylesheet" href="painter.css">
+  </head>
+
+  <body>
+    <main>
+      <div class="artboard">
+        <canvas id="editor" class="grid dashed" data-w="8" data-h="8"></canvas>
+        <div class="sizing x">
+          <button>&uarr;</button>
+          <button>-</button>
+          <button>+</button>
+          <button>&darr;</button>
+        </div>
+        <div class="sizing y">
+          <button>&lt</button>
+          <button>-</button>
+          <button>+</button>
+          <button>&gt</button>
+        </div>
+        <div class="sizing corner">
+          <button>set</button>
+        </div>
+      </div>
+      <aside class="tool-palette">
+        <button>flip</button>
+        <button>paint</button>
+        <button>erase</button>
+      </aside>
+      <aside class="color-palette">
+        <button>red</button>
+        <button>green</button>
+        <button>blue</button>
+        <button>white</button>
+      </aside>
+    </main>
+
+    <script src="../../microcanvas/microcanvas.js"></script>
+    <script src="../pixeldata.js"></script>
+    <script src="painter.js"></script>
+  </body>
+</html>

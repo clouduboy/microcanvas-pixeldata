@@ -1,0 +1,117 @@
+body {
+  background: black;
+}
+
+canvas {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.tool-palette,
+.color-palette {
+  position: absolute;
+  top: 0;
+  width: 10vw;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.tool-palette {
+  left: 0;
+  background: red;
+}
+.tool-palette * { flex: 1; }
+
+.color-palette {
+  right: 0;
+  background: green;
+}
+.color-palette * { flex: 1; }
+
+
+body, main {
+  margin: 0;
+  padding: 0;
+
+  overflow:  hidden;
+}
+
+main {
+  width: 100vw;
+  height: 100vh;
+}
+
+.artboard {
+  --artboard-w: 90vmin;
+  --artboard-h: 90vmin;
+
+  width: var(--artboard-w);
+  height: var(--artboard-h);
+
+  border: 1px solid purple;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  margin-left: calc(50vw - var(--artboard-w) / 2);
+  margin-top: calc((100vh - var(--artboard-h)) / 2);
+}
+.artboard canvas {
+  flex: 0 0 auto;
+  width: calc(var(--artboard-w) - 10vmin);
+  height: calc(var(--artboard-w) - 10vmin);
+}
+
+.sizing {
+  display: flex;
+  background: purple;
+}
+.sizing.x {
+  width: 10vmin;
+  flex-direction: column;
+}
+.sizing.y {
+  height: 10vmin;
+  width: calc(var(--artboard-w) - 10vmin);
+}
+.sizing.corner {
+  width: 10vmin;
+  height: 10vmin;
+}
+
+.artboard button {
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 4vmin;
+}
+.artboard button:hover,
+.artboard button:active,
+.artboard button:focus {
+  background: rebeccapurple;
+}
+
+
+
+.artboard canvas {
+  --canvas-cell: calc((var(--artboard-w) - 10vmin) / 8);
+}
+.artboard canvas.grid {
+	background-image:
+    repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell) - 1px), #333 calc(var(--canvas-cell) - 1px), #333 var(--canvas-cell)),
+    repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell) - 1px), #333 calc(var(--canvas-cell) - 1px), #333 var(--canvas-cell));
+  background-position: 1px 1px;
+}
+.artboard canvas.grid.dashed {
+	background-image:
+    repeating-linear-gradient(135deg, black, black 1px, transparent 4px),
+    repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell) - 1px), #333 calc(var(--canvas-cell) - 1px), #333 var(--canvas-cell)),
+    repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell) - 1px), #333 calc(var(--canvas-cell) - 1px), #333 var(--canvas-cell));
+  background-position: 1px 1px;
+}
