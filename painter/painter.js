@@ -1,3 +1,6 @@
+let spritename = ''
+
+const POP = document.querySelector('.pop')
 const canvas = document.querySelector('.artboard canvas')
 canvas.width = 8
 canvas.height = 8
@@ -22,8 +25,12 @@ Array.from(document.querySelectorAll('[data-set-tool]')).forEach(btn => btn.addE
 // paint color setting
 Array.from(document.querySelectorAll('[data-set-color]')).forEach(btn => btn.addEventListener('click', setPaintColor))
 
+// drawing tools/modes
 Array.from(document.querySelectorAll('[data-resize]')).forEach(btn => btn.addEventListener('click', resizeCanvas))
 Array.from(document.querySelectorAll('[data-scroll]')).forEach(btn => btn.addEventListener('click', scrollCanvas))
+
+// editor actions
+Array.from(document.querySelectorAll('[data-action]')).forEach(btn => btn.addEventListener('click', exec))
 
 let painttool = 'flip'
 
@@ -149,3 +156,23 @@ function popup(text, delay) {
   }, 2000)
 }
 
+function exportpif() {
+  let sprite = new PixelData(ctx.getImageData(0,0,16,16))
+  spritename = prompt('Sprite name?', spritename)||'sprite'
+  sprite.id = spritename
+  return sprite.pif
+}
+
+function exec(e) {
+  switch(e.target.dataset.action) {
+    case 'export':
+      let sprite = exportpif()
+      tmp = document.createElement('textarea')
+      document.body.appendChild(tmp)
+      tmp.value = sprite
+      console.log(sprite)
+      tmp.select()
+      document.execCommand('copy')
+      popup('copied!',1000)
+  }
+}
