@@ -49,7 +49,7 @@ function paintstart(e) {
   painting = true;
 
   if (painttool === 'flip') {
-    paintmode = (px[0] === 0)
+    paintmode = (px[3] === 0)
   }
 
   ctx.fillStyle = paintcolor
