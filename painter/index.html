@@ -13,16 +13,16 @@
       <div class="artboard">
         <canvas id="editor" class="grid dashed" data-w="8" data-h="8"></canvas>
         <div class="sizing x">
-          <button>&uarr;</button>
-          <button>-</button>
-          <button>+</button>
-          <button>&darr;</button>
+          <button data-scroll="y--">&uarr;</button>
+          <button data-resize="w--">-</button>
+          <button data-resize="w++">+</button>
+          <button data-scroll="y++">&darr;</button>
         </div>
         <div class="sizing y">
-          <button>&lt</button>
-          <button>-</button>
-          <button>+</button>
-          <button>&gt</button>
+          <button data-scroll="x--">&lt</button>
+          <button data-resize="h--">-</button>
+          <button data-resize="h++">+</button>
+          <button data-scroll="x++">&gt</button>
         </div>
         <div class="sizing corner">
           <button>set</button>
@@ -41,7 +41,6 @@
       </aside>
     </main>
 
-    <script src="../../microcanvas/microcanvas.js"></script>
     <script src="../pixeldata.js"></script>
     <script src="painter.js"></script>
   </body>

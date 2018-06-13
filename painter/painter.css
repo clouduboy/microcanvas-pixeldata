@@ -100,18 +100,21 @@ main {
 
 
 .artboard canvas {
-  --canvas-cell: calc((var(--artboard-w) - 10vmin) / 8);
+  --cw: 8;
+  --ch: 8;
+  --canvas-cell-w: calc((var(--artboard-w) - 10vmin) / var(--cw));
+  --canvas-cell-h: calc((var(--artboard-h) - 10vmin) / var(--ch));
 }
 .artboard canvas.grid {
 	background-image:
-    repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell) - 1px), #333 calc(var(--canvas-cell) - 1px), #333 var(--canvas-cell)),
-    repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell) - 1px), #333 calc(var(--canvas-cell) - 1px), #333 var(--canvas-cell));
+    repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell-h) - 1px), #333 calc(var(--canvas-cell-w) - 1px), #333 var(--canvas-cell-w)),
+    repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell-w) - 1px), #333 calc(var(--canvas-cell-w) - 1px), #333 var(--canvas-cell-w));
   background-position: 1px 1px;
 }
 .artboard canvas.grid.dashed {
 	background-image:
     repeating-linear-gradient(135deg, black, black 1px, transparent 4px),
-    repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell) - 1px), #333 calc(var(--canvas-cell) - 1px), #333 var(--canvas-cell)),
-    repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell) - 1px), #333 calc(var(--canvas-cell) - 1px), #333 var(--canvas-cell));
+    repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell-h) - 1px), #333 calc(var(--canvas-cell-h) - 1px), #333 var(--canvas-cell-h)),
+    repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell-w) - 1px), #333 calc(var(--canvas-cell-w) - 1px), #333 var(--canvas-cell-w));
   background-position: 1px 1px;
 }

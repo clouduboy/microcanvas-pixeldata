@@ -22,6 +22,8 @@ Array.from(document.querySelectorAll('[data-set-tool]')).forEach(btn => btn.addE
 // paint color setting
 Array.from(document.querySelectorAll('[data-set-color]')).forEach(btn => btn.addEventListener('click', setPaintColor))
 
+Array.from(document.querySelectorAll('[data-resize]')).forEach(btn => btn.addEventListener('click', resizeCanvas))
+Array.from(document.querySelectorAll('[data-scroll]')).forEach(btn => btn.addEventListener('click', scrollCanvas))
 
 let painttool = 'flip'
 
@@ -94,3 +96,35 @@ function setPaintColor(e) {
 //gamebuino palette: https://gamebuino.com/creations/color-palettes
 //pico8 palette: https://ztiromoritz.github.io/pico-8-spick/palette_numbers.png
 //dawnbringer (cats&coins) palette: http://pixeljoint.com/forum/forum_posts.asp?TID=12795
+
+function resizeCanvas(e) {
+  let cd = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height)
+
+  const axis = e.target.dataset.resize[0]
+  const dir = e.target.dataset.resize[1] === '-' ? -1 : 1
+
+  switch(axis) {
+    case 'w':
+      ctx.canvas.dataset[axis] = (ctx.canvas.width += dir)
+      break
+
+    case 'h':
+      ctx.canvas.dataset[axis] = (ctx.canvas.height += dir)
+      break
+  }
+
+  ctx.canvas.style = `--cw: ${ctx.canvas.dataset.w}; --ch: ${ctx.canvas.dataset.h}`
+  ctx.putImageData(cd, 0,0)
+}
+
+function scrollCanvas(e) {
+  let cd = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height)
+
+  const axis = e.target.dataset.scroll[0]
+  const dir = e.target.dataset.scroll[1] === '-' ? -1 : 1
+
+  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
+
+  ctx.putImageData(cd, axis === 'x' ? dir : 0, axis === 'y' ? dir: 0)
+  ctx.putImageData(cd, axis === 'x' ? dir-dir*ctx.canvas.width : 0, axis === 'y' ? dir-dir*ctx.canvas.height: 0)
+}
