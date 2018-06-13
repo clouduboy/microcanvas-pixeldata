@@ -115,6 +115,8 @@ function resizeCanvas(e) {
 
   ctx.canvas.style = `--cw: ${ctx.canvas.dataset.w}; --ch: ${ctx.canvas.dataset.h}`
   ctx.putImageData(cd, 0,0)
+
+  popup(`${ctx.canvas.width}x${ctx.canvas.height}`, 900)
 }
 
 function scrollCanvas(e) {
@@ -128,3 +130,22 @@ function scrollCanvas(e) {
   ctx.putImageData(cd, axis === 'x' ? dir : 0, axis === 'y' ? dir: 0)
   ctx.putImageData(cd, axis === 'x' ? dir-dir*ctx.canvas.width : 0, axis === 'y' ? dir-dir*ctx.canvas.height: 0)
 }
+
+let popuptimer
+function popup(text, delay) {
+  POP.textContent = text
+  POP.classList.add('show')
+
+  POP.classList.remove('fade')
+
+  setTimeout(() => {
+    POP.classList.add('fade')
+  }, delay)
+
+  clearTimeout(popuptimer)
+  popuptimer = setTimeout(() => {
+    POP.classList.remove('fade')
+    POP.classList.remove('show')
+  }, 2000)
+}
+

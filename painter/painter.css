@@ -118,3 +118,31 @@ main {
     repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell-w) - 1px), #333 calc(var(--canvas-cell-w) - 1px), #333 var(--canvas-cell-w));
   background-position: 1px 1px;
 }
+
+.pop {
+  opacity: .5;
+  transition: opacity .4s;
+}
+.pop.show {
+	color: white;
+	top: 40vh;
+	left: calc(50vw - 2em);
+	width: 4em;
+	font-size: 10vh;
+	position: absolute;
+	font-family: monospace;
+	opacity: .9;
+	background: black;
+	display: inline-block;
+	text-align: center;
+}
+
+.pop.show.fade {
+  animation: 1.6s popin ease;
+  animation-fill-mode: forwards;
+}
+
+@keyframes popin {
+  0%  {  opacity: .9 }
+  100% { opacity:  0 }
+}
