@@ -16,8 +16,19 @@ canvas.addEventListener('pointerdown', paintstart)
 canvas.addEventListener('pointerup', paintend)
   canvas.addEventListener('pointermove', paint)
 
+
+// paint tool setting
+Array.from(document.querySelectorAll('[data-set-tool]')).forEach(btn => btn.addEventListener('click', setPaintTool))
+
+
+
+let painttool = 'flip'
+
 let painting = false;
 let paintmode = 1;
+
+
+
 
 function plot(e) {
   const coords = canvasCoords(e)
@@ -35,7 +46,10 @@ function paintstart(e) {
   const coords = canvasCoords(e)
   const px = ctx.getImageData(coords.x,coords.y,1,1).data
   painting = true;
-  paintmode = (px[0] === 0)
+
+  if (painttool === 'flip') {
+    paintmode = (px[0] === 0)
+  }
   paint(e)
 }
 function paintend() { painting = false; }
@@ -59,4 +73,11 @@ function canvasCoords(e) {
     x: Math.floor((e.clientX - e.target.offsetLeft) / e.target.offsetWidth * canvas.width),
     y: Math.floor((e.clientY - e.target.offsetTop) / e.target.offsetHeight * canvas.height)
   }
+}
+
+function setPaintTool(e) {
+  painttool = (e.target.dataset.setTool || 'flip')
+  if (painttool === 'erase') paintmode = false;
+  if (painttool === 'paint') paintmode = true;
+  console.log(e.target.dataset,painttool, paintmode)
 }
