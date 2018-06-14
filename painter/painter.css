@@ -12,7 +12,7 @@ canvas {
 .color-palette {
   position: absolute;
   top: 0;
-  width: 10vmin;
+  width: 12vmin;
   height: 100vh;
 
   display: flex;
@@ -30,7 +30,7 @@ canvas {
   color: black;
 	font-size: 3vw;
 	font-weight: bold;
-	text-shadow: .075em .075em white, -.075em -.075em white,-.075em .075em white, .075em -.075em white, 0 -.075em white, 0 .075em white;
+	text-shadow: .075em .075em white, -.075em -.075em white,-.075em .075em white, .075em -.075em white, 0 -.075em white, 0 .075em white, -.075em 0 white, .075em 0 white;
 	-webkit-text-stroke: .01em white;
 }
 
@@ -41,6 +41,14 @@ canvas {
 
 .tool-palette button.current {
   background: #06d;
+}
+
+@media (min-aspect-ratio: 4/3) {
+  .tool-palette button {
+    text-orientation: upright;
+    writing-mode: vertical-lr;
+    font-size: 3vh;
+  }
 }
 
 
@@ -76,8 +84,8 @@ main {
 }
 
 .artboard {
-  --artboard-w: 78vmin;
-  --artboard-h: 78vmin;
+  --artboard-w: 72vmin;
+  --artboard-h: 72vmin;
 
   width: var(--artboard-w);
   height: var(--artboard-h);
@@ -89,6 +97,12 @@ main {
 
   margin-left: calc(50vw - var(--artboard-w) / 2);
   margin-top: calc((100vh - var(--artboard-h)) / 2);
+}
+@media (min-aspect-ratio: 4/3) {
+  .artboard {
+    --artboard-w: 96vh;
+    --artboard-h: 96vh;
+  }
 }
 .artboard canvas {
   flex: 0 0 auto;
