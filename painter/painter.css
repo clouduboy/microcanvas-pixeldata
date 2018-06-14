@@ -12,24 +12,55 @@ canvas {
 .color-palette {
   position: absolute;
   top: 0;
-  width: 10vw;
+  width: 10vmin;
   height: 100vh;
 
   display: flex;
   flex-direction: column;
 }
 
+.tool-palette button,
+.color-palette button {
+	flex: 1;
+	background: transparent;
+  padding: 0;
+	border: .2em solid white;
+  transition: all .2s ease;
+
+  color: black;
+	font-size: 3vw;
+	font-weight: bold;
+	text-shadow: .075em .075em white, -.075em -.075em white,-.075em .075em white, .075em -.075em white, 0 -.075em white, 0 .075em white;
+	-webkit-text-stroke: .01em white;
+}
+
+.tool-palette button:active,
+.color-palette button:active {
+  border-color: black;
+}
+
+.tool-palette button.current {
+  background: #06d;
+}
+
+
 .tool-palette {
   left: 0;
-  background: red;
 }
-.tool-palette * { flex: 1; }
+
+.tool-palette button {
+	background: #0cf;
+	margin-bottom: .2em;
+}
+.tool-palette button:active {
+  background-color: white;
+}
 
 .color-palette {
   right: 0;
   background: green;
 }
-.color-palette * { flex: 1; }
+
 
 
 body, main {
@@ -45,8 +76,8 @@ main {
 }
 
 .artboard {
-  --artboard-w: 90vmin;
-  --artboard-h: 90vmin;
+  --artboard-w: 78vmin;
+  --artboard-h: 78vmin;
 
   width: var(--artboard-w);
   height: var(--artboard-h);

@@ -1,5 +1,12 @@
 let spritename = ''
 
+let painttool = 'flip'
+
+let painting = false;
+let paintmode = 1;
+
+let paintcolor = 'white';
+
 const POP = document.querySelector('.pop')
 const canvas = document.querySelector('.artboard canvas')
 canvas.width = 8
@@ -21,6 +28,7 @@ canvas.addEventListener('pointerup', paintend)
 
 // paint tool setting
 Array.from(document.querySelectorAll('[data-set-tool]')).forEach(btn => btn.addEventListener('click', setPaintTool))
+setPaintTool({target: document.querySelector('[data-set-tool="flip"]')})
 
 // paint color setting
 Array.from(document.querySelectorAll('[data-set-color]')).forEach(btn => btn.addEventListener('click', setPaintColor))
@@ -32,12 +40,7 @@ Array.from(document.querySelectorAll('[data-scroll]')).forEach(btn => btn.addEve
 // editor actions
 Array.from(document.querySelectorAll('[data-action]')).forEach(btn => btn.addEventListener('click', exec))
 
-let painttool = 'flip'
 
-let painting = false;
-let paintmode = 1;
-
-let paintcolor = 'white';
 
 
 function plot(e) {
@@ -93,6 +96,10 @@ function setPaintTool(e) {
   if (painttool === 'erase') paintmode = false;
   if (painttool === 'paint') paintmode = true;
   console.log(e.target.dataset,painttool, paintmode)
+
+  let current = document.querySelector('.tool-palette button.current')
+  if (current) current.classList.remove('current')
+  e.target.classList.add('current')
 }
 
 function setPaintColor(e) {
