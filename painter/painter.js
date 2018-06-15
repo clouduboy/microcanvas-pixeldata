@@ -10,6 +10,8 @@ let paintcolor = 'white'
 let zoom
 const ZOOM_LEVELS = [null, 2, 8, 16, 32]
 
+const PAL_PICO8 = `black,#20337b,#7e2553,#008331,#ab5236,#454545,#c2c3c7,#fff1e8,#ff004d,#ffa300,#ffe727,#00e232,#29adff,#83769c,#ff77a8,#ffccaa`.split(',')
+
 const POP = document.querySelector('.pop')
 const canvas = document.querySelector('.artboard canvas')
 canvas.width = 8
@@ -46,6 +48,11 @@ Array.from(document.querySelectorAll('[data-action]')).forEach(btn => btn.addEve
 
 // set zoom
 changeZoom()
+
+
+// set palette
+setPalette(PAL_PICO8)
+
 
 
 function plot(e) {
@@ -227,4 +234,17 @@ function changeZoom() {
   } else {
     document.body.dataset.zoom = `${zoom}x`
   }
+}
+
+function setPalette(pal) {
+  const toolbar = document.querySelector('.color-palette')
+  toolbar.innerHTML = ''
+
+  pal.forEach(c => {
+    let b = document.createElement('button')
+    b.dataset.setColor=c
+    b.style.backgroundColor=c
+    b.addEventListener('click', setPaintColor)
+    toolbar.appendChild(b)
+  })
 }
