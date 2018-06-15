@@ -104,10 +104,21 @@ main {
     --artboard-h: 96vh;
   }
 }
+
 .artboard canvas {
-  flex: 0 0 auto;
-  width: calc(var(--artboard-w) - 10vmin);
-  height: calc(var(--artboard-w) - 10vmin);
+  --cw: 8;
+  --ch: 8;
+  --canvas-cell-w: calc((var(--artboard-w) - 10vmin) / var(--cw));
+  --canvas-cell-h: calc((var(--artboard-h) - 10vmin) / var(--ch));
+}
+
+.artboard canvas {
+	flex: none;
+	width: calc(var(--artboard-w) - 10vmin);
+	height: calc(var(--artboard-w) * var(--ch) / var(--cw) - 10vmin);
+
+  border: medium solid rgba(100,100,100,.5);
+  border-width: calc(( var(--artboard-h) - 10vmin - var(--canvas-cell-h) * var(--ch)) / 2) calc((var(--artboard-w) - 10vmin - var(--canvas-cell-w) * var(--cw)) / 2);
 }
 
 .sizing {
@@ -144,12 +155,6 @@ main {
 
 
 
-.artboard canvas {
-  --cw: 8;
-  --ch: 8;
-  --canvas-cell-w: calc((var(--artboard-w) - 10vmin) / var(--cw));
-  --canvas-cell-h: calc((var(--artboard-h) - 10vmin) / var(--ch));
-}
 .artboard canvas.grid {
 	background-image:
     repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell-h) - 1px), #333 calc(var(--canvas-cell-w) - 1px), #333 var(--canvas-cell-w)),
@@ -190,4 +195,39 @@ main {
 @keyframes popin {
   0%  {  opacity: .9 }
   100% { opacity:  0 }
+}
+
+
+
+
+/*zooming*/
+.artboard {
+  --artboard-w: calc(100vw - 10vw - 10vw);
+  --artboard-h: 100vh;
+}
+
+[data-zoom] .artboard>canvas {
+	--canvas-cell-w: calc(var(--zoom, 1) * 1px);
+	--canvas-cell-h: calc(var(--zoom, 1) * 1px);
+
+  flex: none;
+	width: calc(var(--canvas-cell-w) * var(--cw));
+	height: calc(var(--canvas-cell-h) * var(--ch));
+
+  border: medium solid rgba(100,100,100,.5);
+  border-width: calc((var(--artboard-h) - 10vmin - var(--canvas-cell-h) * var(--ch)) / 2)
+          calc((var(--artboard-w) - 10vmin - var(--canvas-cell-w) * var(--cw)) / 2);
+}
+
+[data-zoom="2x"] {
+  --zoom: 2;
+}
+[data-zoom="8x"] {
+  --zoom: 8;
+}
+[data-zoom="16x"] {
+  --zoom: 16;
+}
+[data-zoom="32x"] {
+  --zoom: 32;
 }

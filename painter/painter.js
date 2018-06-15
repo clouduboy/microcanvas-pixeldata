@@ -2,10 +2,13 @@ let spritename = ''
 
 let painttool = 'flip'
 
-let painting = false;
-let paintmode = 1;
+let painting = false
+let paintmode = 1
 
-let paintcolor = 'white';
+let paintcolor = 'white'
+
+let zoom
+const ZOOM_LEVELS = [null, 2, 8, 16, 32]
 
 const POP = document.querySelector('.pop')
 const canvas = document.querySelector('.artboard canvas')
@@ -41,6 +44,8 @@ Array.from(document.querySelectorAll('[data-scroll]')).forEach(btn => btn.addEve
 Array.from(document.querySelectorAll('[data-action]')).forEach(btn => btn.addEventListener('click', exec))
 
 
+// set zoom
+changeZoom()
 
 
 function plot(e) {
@@ -57,6 +62,8 @@ function plot(e) {
 
 function paintstart(e) {
   const coords = canvasCoords(e)
+  if (isNaN(coords.x) || isNaN(coords.y)) return
+
   const px = ctx.getImageData(coords.x,coords.y,1,1).data
   painting = true;
 
@@ -72,6 +79,8 @@ function paintend() { painting = false; }
 function paint(e) {
   if (painting) {
     const coords = canvasCoords(e)
+    if (isNaN(coords.x) || isNaN(coords.y)) return
+
     if (paintmode) {
       ctx.fillRect(coords.x, coords.y, 1,1)
     } else {
@@ -85,10 +94,27 @@ function touch(e) {
 }
 
 function canvasCoords(e) {
-  return {
-    x: Math.floor((e.clientX - e.target.offsetLeft) / e.target.offsetWidth * canvas.width),
-    y: Math.floor((e.clientY - e.target.offsetTop) / e.target.offsetHeight * canvas.height)
+  let xOrigin = e.clientX - e.target.offsetLeft,
+      yOrigin = e.clientY - e.target.offsetTop,
+      xRatio = e.target.offsetWidth / canvas.width,
+      yRatio = e.target.offsetHeight / canvas.height
+
+  if (zoom) {
+    xOrigin -= (e.target.offsetWidth - canvas.width*zoom) / 2
+    yOrigin -= (e.target.offsetHeight - canvas.height*zoom) / 2
+    xRatio = yRatio = zoom
   }
+
+  const coords = {
+    x: Math.floor(xOrigin / xRatio),
+    y: Math.floor(yOrigin / yRatio)
+  }
+
+  if (coords.x < 0 || coords.x >= canvas.width) coords.x = NaN
+  if (coords.y < 0 || coords.y >= canvas.height) coords.y = NaN
+
+  console.log(coords)
+  return coords
 }
 
 function setPaintTool(e) {
@@ -181,5 +207,24 @@ function exec(e) {
       tmp.select()
       document.execCommand('copy')
       popup('copied!',1000)
+      break
+
+    case 'zoom':
+      changeZoom()
+      break
+  }
+}
+
+function changeZoom() {
+  let zlevel = ZOOM_LEVELS.indexOf(zoom)
+  zlevel = zlevel === -1 || zlevel === ZOOM_LEVELS.length-1 ? 0 : zlevel+1
+
+  zoom = ZOOM_LEVELS[zlevel]
+  console.log(zoom)
+
+  if (zoom === null) {
+    delete document.body.dataset.zoom
+  } else {
+    document.body.dataset.zoom = `${zoom}x`
   }
 }
