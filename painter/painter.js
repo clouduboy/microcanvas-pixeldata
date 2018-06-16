@@ -52,6 +52,11 @@ changeZoom()
 
 // set palette
 setPalette(PAL_PICO8)
+paintcolor = '#fff1e8'
+
+// load last saved sprite
+loadSprite()
+
 
 
 
@@ -93,6 +98,8 @@ function paint(e) {
     } else {
       ctx.clearRect(coords.x, coords.y, 1,1)
     }
+
+    spriteChanged()
   }
 }
 
@@ -120,7 +127,6 @@ function canvasCoords(e) {
   if (coords.x < 0 || coords.x >= canvas.width) coords.x = NaN
   if (coords.y < 0 || coords.y >= canvas.height) coords.y = NaN
 
-  console.log(coords)
   return coords
 }
 
@@ -128,7 +134,6 @@ function setPaintTool(e) {
   painttool = (e.target.dataset.setTool || 'flip')
   if (painttool === 'erase') paintmode = false;
   if (painttool === 'paint') paintmode = true;
-  console.log(e.target.dataset,painttool, paintmode)
 
   let current = document.querySelector('.tool-palette button.current')
   if (current) current.classList.remove('current')
@@ -137,7 +142,6 @@ function setPaintTool(e) {
 
 function setPaintColor(e) {
   paintcolor = (e.target.dataset.setColor || 'white')
-  console.log(e.target.dataset, paintcolor)
 }
 //TODO:palettes
 //gamebuino palette: https://gamebuino.com/creations/color-palettes
@@ -164,6 +168,7 @@ function resizeCanvas(e) {
   ctx.putImageData(cd, 0,0)
 
   popup(`${ctx.canvas.width}x${ctx.canvas.height}`, 900)
+  spriteChanged()
 }
 
 function scrollCanvas(e) {
@@ -176,6 +181,8 @@ function scrollCanvas(e) {
 
   ctx.putImageData(cd, axis === 'x' ? dir : 0, axis === 'y' ? dir: 0)
   ctx.putImageData(cd, axis === 'x' ? dir-dir*ctx.canvas.width : 0, axis === 'y' ? dir-dir*ctx.canvas.height: 0)
+
+  spriteChanged()
 }
 
 let popuptimer
@@ -196,8 +203,15 @@ function popup(text, delay) {
   }, 2000)
 }
 
+// TODO: stitch sprites together?
+function imageData() {
+  const imagedata = ctx.getImageData(0,0,canvas.width,canvas.height),
+        pif = new PixelData(imagedata)
+
+  return { imagedata, pif }
+}
 function exportpif() {
-  let sprite = new PixelData(ctx.getImageData(0,0,16,16))
+  let sprite = imageData().pif
   spritename = prompt('Sprite name?', spritename)||'sprite'
   sprite.id = spritename
   return sprite.pif
@@ -247,4 +261,27 @@ function setPalette(pal) {
     b.addEventListener('click', setPaintColor)
     toolbar.appendChild(b)
   })
+}
+
+function spriteChanged() {
+  const id = imageData()
+  const serialized = JSON.stringify({
+    width: id.imagedata.width,
+    height: id.imagedata.height,
+    data: Array.from(id.imagedata.data),
+    pif: id.pif.pif
+  })
+
+  localStorage.setItem('last', serialized)
+  // save also separately
+  if (spritename) localStorage.setItem('saved-'+spritename, serialized)
+}
+function loadSprite(name) {
+  const storage = localStorage.getItem(name ? 'saved-'+spritename : 'last')
+  if (!storage) return
+
+  const id = JSON.parse(storage)
+  canvas.width = id.width
+  canvas. height = id.height
+  ctx.putImageData(new ImageData(new Uint8ClampedArray(id.data), id.width,id.height), 0,0)
 }
