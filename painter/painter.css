@@ -248,3 +248,27 @@ main {
 	left: 10vw;
 }
 
+
+
+textarea.dialog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  border: 10vmin solid rgba(0,0,0,.8);
+  width: 100vw;
+  height: 100vh;
+  background: #306;
+  color: white;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 4vw;
+  overflow-y: scroll;
+}
+
+textarea.dialog::selection {
+  background: black;
+}
+textarea.dialog::-moz-selection {
+  background: black;
+}

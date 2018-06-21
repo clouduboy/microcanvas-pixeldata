@@ -225,16 +225,40 @@ function exec(e) {
 
     case 'export':
       let sprite = exportpif()
-      tmp = document.createElement('textarea')
-      document.body.appendChild(tmp)
-      tmp.value = sprite
+      tx = document.createElement('textarea')
+      tx.className = 'dialog'
+      document.body.appendChild(tx)
+      tx.value = sprite
       console.log(sprite)
-      tmp.select()
+      tx.focus()
+      tx.select()
       document.execCommand('copy')
       popup('copied!',1000)
+      tx.addEventListener('keydown', (e) => { if (e.key === 'Escape') tx.remove() })
+      break
+
+    case 'import':
+      tx = document.createElement('textarea')
+      tx.className = 'dialog'
+      document.body.appendChild(tx)
+      tx.focus()
+      tx.addEventListener('keydown', (e) => { if (e.key === 'Escape') tx.remove() })
+      tx.addEventListener('paste', () => {
+        console.log('pasted!!')
+        setTimeout(_ => {
+          let sprite = new PixelData(tx.value)
+          if (sprite) {
+            putSprite(sprite)
+            tx.remove()
+          } else {
+            console.log('Invalid PixelData!')
+          }
+        }, 1)
+      })
       break
 
     case 'zoom':
+      console.log('zooming...')
       changeZoom()
       break
   }
@@ -285,7 +309,13 @@ function loadSprite(name) {
   if (!storage) return
 
   const id = JSON.parse(storage)
-  canvas.width = id.width
-  canvas. height = id.height
-  ctx.putImageData(new ImageData(new Uint8ClampedArray(id.data), id.width,id.height), 0,0)
+  putSprite(id, spritename)
+}
+
+function putSprite(sprite, id) {
+  canvas.width = sprite.width || sprite.w
+  canvas.height = sprite.height || sprite.h
+  spritename = id || sprite.id || spritename
+
+  ctx.putImageData(new ImageData(new Uint8ClampedArray(sprite.data || sprite.rgba), canvas.width,canvas.height), 0,0)
 }
