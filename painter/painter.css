@@ -123,7 +123,6 @@ main {
 
 .sizing {
   display: flex;
-  background: purple;
 }
 .sizing.x {
   width: 10vmin;
@@ -204,6 +203,9 @@ main {
 .artboard {
   --artboard-w: calc(100vw - 10vw - 10vw);
   --artboard-h: 100vh;
+
+  justify-content: center;
+  align-items: center;
 }
 
 [data-zoom] .artboard>canvas {
@@ -231,3 +233,18 @@ main {
 [data-zoom="32x"] {
   --zoom: 32;
 }
+
+
+.canvas-overlay {
+  display: none;
+}
+
+[data-currently="sizing"] .canvas-overlay.sizing {
+	display: block;
+	width: 80vw;
+	height: 100vh;
+	position: absolute;
+	top: 0;
+	left: 10vw;
+}
+

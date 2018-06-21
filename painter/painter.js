@@ -219,6 +219,10 @@ function exportpif() {
 
 function exec(e) {
   switch(e.target.dataset.action) {
+    case 'resize':
+      document.body.dataset.currently= document.body.dataset.currently ? '' : 'sizing'
+      break
+
     case 'export':
       let sprite = exportpif()
       tmp = document.createElement('textarea')
