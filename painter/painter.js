@@ -54,8 +54,20 @@ changeZoom()
 setPalette(PAL_PICO8)
 paintcolor = '#fff1e8'
 
+
+
+// load sprite passed in via url
+inUrl = window.location.search.match(/pif=([^\?&]+)/)
+if (inUrl) {
+  let pif = decodeURIComponent(inUrl[1]).replace(/\|/g,'\n')
+  let pd = new PixelData(pif)
+  console.log('url pd:', pif, pd)
+  putSprite(pd)
+
 // load last saved sprite
-loadSprite()
+} else {
+  loadSprite()
+}
 
 
 
