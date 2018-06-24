@@ -12,7 +12,7 @@ const ZOOM_LEVELS = [null, 2, 8, 16, 32]
 
 const PAL_PICO8 = `black,#20337b,#7e2553,#008331,#ab5236,#454545,#c2c3c7,#fff1e8,#ff004d,#ffa300,#ffe727,#00e232,#29adff,#83769c,#ff77a8,#ffccaa`.split(',')
 
-const POP = document.querySelector('.pop')
+
 const canvas = document.querySelector('.artboard canvas')
 canvas.width = 8
 canvas.height = 8
@@ -46,28 +46,31 @@ Array.from(document.querySelectorAll('[data-scroll]')).forEach(btn => btn.addEve
 Array.from(document.querySelectorAll('[data-action]')).forEach(btn => btn.addEventListener('click', exec))
 
 
-// set zoom
-changeZoom()
 
+// Onload
+setTimeout(_ => {
+  // set zoom
+  changeZoom()
+  toggleGrid(1)
+  toggleCheckerboard(1)
 
-// set palette
-setPalette(PAL_PICO8)
-paintcolor = '#fff1e8'
+  // set palette
+  setPalette(PAL_PICO8)
+  paintcolor = '#fff1e8'
 
+  // load sprite passed in via url
+  inUrl = window.location.search.match(/pif=([^\?&]+)/)
+  if (inUrl) {
+    let pif = decodeURIComponent(inUrl[1]).replace(/\|/g,'\n')
+    let pd = new PixelData(pif)
+    console.log('url pd:', pif, pd)
+    putSprite(pd)
 
-
-// load sprite passed in via url
-inUrl = window.location.search.match(/pif=([^\?&]+)/)
-if (inUrl) {
-  let pif = decodeURIComponent(inUrl[1]).replace(/\|/g,'\n')
-  let pd = new PixelData(pif)
-  console.log('url pd:', pif, pd)
-  putSprite(pd)
-
-// load last saved sprite
-} else {
-  loadSprite()
-}
+  // load last saved sprite
+  } else {
+    loadSprite()
+  }
+}, 1)
 
 
 
@@ -120,14 +123,14 @@ function touch(e) {
 }
 
 function canvasCoords(e) {
-  let xOrigin = e.clientX - e.target.offsetLeft,
-      yOrigin = e.clientY - e.target.offsetTop,
-      xRatio = e.target.offsetWidth / canvas.width,
-      yRatio = e.target.offsetHeight / canvas.height
+  let xOrigin = e.clientX - e.target.clientLeft,
+      yOrigin = e.clientY - e.target.clientTop,
+      xRatio = e.target.clientWidth / canvas.width,
+      yRatio = e.target.clientHeight / canvas.height
 
   if (zoom) {
-    xOrigin -= (e.target.offsetWidth - canvas.width*zoom) / 2
-    yOrigin -= (e.target.offsetHeight - canvas.height*zoom) / 2
+    xOrigin -= (e.target.clientWidth - canvas.width*zoom) / 2
+    yOrigin -= (e.target.clientHeight - canvas.height*zoom) / 2
     xRatio = yRatio = zoom
   }
 
@@ -163,25 +166,44 @@ function setPaintColor(e) {
 function resizeCanvas(e) {
   let cd = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height)
 
-  const axis = e.target.dataset.resize[0]
-  const dir = e.target.dataset.resize[1] === '-' ? -1 : 1
+  let axis, dir
 
-  switch(axis) {
-    case 'w':
-      ctx.canvas.dataset[axis] = (ctx.canvas.width += dir)
-      break
-
-    case 'h':
-      ctx.canvas.dataset[axis] = (ctx.canvas.height += dir)
-      break
+  if (e && e.target && e.target.dataset.resize) {
+    axis = e.target.dataset.resize[0]
+    dir =  e.target.dataset.resize[1] === '-' ? -1 : 1
+  } else if (e && e.axis) {
+    ({ axis, dir } = e)
   }
 
-  ctx.canvas.style = `--cw: ${ctx.canvas.dataset.w}; --ch: ${ctx.canvas.dataset.h}`
-  ctx.putImageData(cd, 0,0)
+  if (axis) {
+    switch(axis) {
+      case 'w':
+        ctx.canvas.width += dir
+        break
+
+      case 'h':
+        ctx.canvas.height += dir
+        break
+    }
+
+    ctx.putImageData(cd, 0,0)
+  }
+
+  ctx.canvas.dataset.w = canvas.width
+  ctx.canvas.dataset.h = canvas.height
+  updateCanvasStyle()
 
   popup(`${ctx.canvas.width}x${ctx.canvas.height}`, 900)
   spriteChanged()
 }
+
+function updateCanvasStyle() {
+  let s = `--cw: ${canvas.dataset.w}; --ch: ${canvas.dataset.h};`
+  if (canvas.dataset.zoom) s += ` --zoom: ${canvas.dataset.zoom};`
+
+  canvas.style = s;
+}
+
 
 function scrollCanvas(e) {
   let cd = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height)
@@ -197,22 +219,23 @@ function scrollCanvas(e) {
   spriteChanged()
 }
 
-let popuptimer
 function popup(text, delay) {
+  let POP = document.createElement('div')
+  POP.className = 'pop'
   POP.textContent = text
   POP.classList.add('show')
-
   POP.classList.remove('fade')
+  document.querySelector('.info-overlay').appendChild(POP)
 
   setTimeout(() => {
     POP.classList.add('fade')
   }, delay)
 
-  clearTimeout(popuptimer)
-  popuptimer = setTimeout(() => {
-    POP.classList.remove('fade')
-    POP.classList.remove('show')
-  }, 2000)
+  setTimeout(() => {
+    //POP.classList.remove('fade')
+    //POP.classList.remove('show')
+    POP.remove()
+  }, 1000+100*text.length)
 }
 
 // TODO: stitch sprites together?
@@ -270,7 +293,6 @@ function exec(e) {
       break
 
     case 'zoom':
-      console.log('zooming...')
       changeZoom()
       break
   }
@@ -281,13 +303,17 @@ function changeZoom() {
   zlevel = zlevel === -1 || zlevel === ZOOM_LEVELS.length-1 ? 0 : zlevel+1
 
   zoom = ZOOM_LEVELS[zlevel]
-  console.log(zoom)
 
   if (zoom === null) {
     delete document.body.dataset.zoom
+    delete canvas.dataset.zoom
   } else {
     document.body.dataset.zoom = `${zoom}x`
+    canvas.dataset.zoom = zoom
   }
+
+  popup(zoom ? `${zoom}x` : 'zoom off')
+  updateCanvasStyle()
 }
 
 function setPalette(pal) {
@@ -330,4 +356,19 @@ function putSprite(sprite, id) {
   spritename = id || sprite.id || spritename
 
   ctx.putImageData(new ImageData(new Uint8ClampedArray(sprite.data || sprite.rgba), canvas.width,canvas.height), 0,0)
+  resizeCanvas()
+}
+
+const globalState = document.body.dataset;
+function toggleCheckerboard(newState = !globalState.checkerboard) {
+  //document.querySelector('.artboard canvas').classList.toggle('checkerboard')
+
+  if (newState) return globalState.checkerboard=1
+  delete globalState.checkerboard
+}
+function toggleGrid(newState = !globalState.grid) {
+  //document.querySelector('.artboard canvas').classList.toggle('grid')
+
+  if (newState) return globalState.grid=1
+  delete globalState.grid
 }
