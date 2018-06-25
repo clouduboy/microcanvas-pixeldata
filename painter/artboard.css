@@ -1,109 +1,3 @@
-/* LEGACY -------------------------- */
-
-/*
-.artboard {
-  --artboard-w: 72vmin;
-  --artboard-h: 72vmin;
-
-  width: var(--artboard-w);
-  height: var(--artboard-h);
-
-  border: 1px solid purple;
-
-  display: flex;
-  flex-wrap: wrap;
-
-  margin-left: calc(50vw - var(--artboard-w) / 2);
-  margin-top: calc((100vh - var(--artboard-h)) / 2);
-}
-.artboard {
-  --artboard-w: calc(100vw - 10vw - 10vw);
-  --artboard-h: 100vh;
-
-  justify-content: center;
-  align-items: center;
-}
-@media (min-aspect-ratio: 4/3) {
-  .artboard {
-    --artboard-w: 96vh;
-    --artboard-h: 96vh;
-  }
-}
-*/
-
-.artboard canvas {
-  --cw: 8;
-  --ch: 8;
-  --canvas-cell-w: calc((var(--artboard-w) - 10vmin) / var(--cw));
-  --canvas-cell-h: calc((var(--artboard-h) - 10vmin) / var(--ch));
-}
-
-.artboard canvas {
-	flex: none;
-	width: calc(var(--artboard-w) - 10vmin);
-	height: calc(var(--artboard-w) * var(--ch) / var(--cw) - 10vmin);
-
-  border: medium solid rgba(100,100,100,.5);
-  border-width: calc(( var(--artboard-h) - 10vmin - var(--canvas-cell-h) * var(--ch)) / 2) calc((var(--artboard-w) - 10vmin - var(--canvas-cell-w) * var(--cw)) / 2);
-}
-
-
-
-/*
-.artboard canvas.grid {
-	background-image:
-    repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell-h) - 1px), #333 calc(var(--canvas-cell-w) - 1px), #333 var(--canvas-cell-w)),
-    repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell-w) - 1px), #333 calc(var(--canvas-cell-w) - 1px), #333 var(--canvas-cell-w));
-  background-position: 1px 1px;
-}
-.artboard canvas.grid.dashed {
-	background-image:
-    repeating-linear-gradient(135deg, black, black 1px, transparent 4px),
-    repeating-linear-gradient(180deg, transparent,transparent calc(var(--canvas-cell-h) - 1px), #333 calc(var(--canvas-cell-h) - 1px), #333 var(--canvas-cell-h)),
-    repeating-linear-gradient( 90deg, transparent,transparent calc(var(--canvas-cell-w) - 1px), #333 calc(var(--canvas-cell-w) - 1px), #333 var(--canvas-cell-w));
-  background-position: 1px 1px;
-}
-*/
-
-
-
-
-/*zooming
-[data-zoom] .artboard>canvas {
-	--canvas-cell-w: calc(var(--zoom, 1) * 1px);
-	--canvas-cell-h: calc(var(--zoom, 1) * 1px);
-
-  flex: none;
-	width: calc(var(--canvas-cell-w) * var(--cw));
-	height: calc(var(--canvas-cell-h) * var(--ch));
-
-  border: medium solid rgba(100,100,100,.5);
-  border-width: calc((var(--artboard-h) - 10vmin - var(--canvas-cell-h) * var(--ch)) / 2)
-          calc((var(--artboard-w) - 10vmin - var(--canvas-cell-w) * var(--cw)) / 2);
-}
-*/
-
-/*
-[data-zoom="2x"] {
-  --zoom: 2;
-}
-[data-zoom="8x"] {
-  --zoom: 8;
-}
-[data-zoom="16x"] {
-  --zoom: 16;
-}
-[data-zoom="32x"] {
-  --zoom: 32;
-}
-*/
-
-/* --------------------------------- LEGACY */
-
-
-
-
-
 .artboard {
   --artboard-w: 80vw;
   --artboard-h: 100vh;
@@ -146,16 +40,14 @@ main .artboard canvas {
   background-position: 0 0;
 }
 
-[data-checkerboard] .artboard canvas,
-main .artboard canvas.checkerboard {
+[data-checkerboard] .artboard canvas {
   background-color: #aaa;
   background-image:
     linear-gradient( 0deg, rgba(0,0,0,.2) 0, rgba(0,0,0,.2) 50%, transparent 50%),
     linear-gradient(90deg, rgba(0,0,0,.2) 0, rgba(0,0,0,.2) 50%, transparent 50%)
     ;
 }
-[data-grid] .artboard canvas,
-main .artboard canvas.grid {
+[data-grid] .artboard canvas {
   background-position: -1px 1px;
   background-image:
     linear-gradient( 0deg, rgba(255,255,255,.25) 2px, transparent 2px, transparent 100%),
@@ -163,8 +55,7 @@ main .artboard canvas.grid {
     ;
 }
 
-[data-checkerboard][data-grid] .artboard canvas,
-main .artboard canvas.checkerboard.grid {
+[data-checkerboard][data-grid] .artboard canvas {
   background-image:
     linear-gradient( 0deg, rgba(0,0,0,.8) 2px, transparent 2px, transparent 100%),
     linear-gradient(90deg, rgba(0,0,0,.8) 2px, transparent 2px, transparent 100%),

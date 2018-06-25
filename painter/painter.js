@@ -1,3 +1,6 @@
+const globalState = document.body.dataset;
+
+
 let spritename = ''
 
 let painttool = 'flip'
@@ -8,7 +11,7 @@ let paintmode = 1
 let paintcolor = 'white'
 
 let zoom
-const ZOOM_LEVELS = [null, 2, 8, 16, 32]
+const ZOOM_LEVELS = [2, 8, 16, 32]
 
 const PAL_PICO8 = `black,#20337b,#7e2553,#008331,#ab5236,#454545,#c2c3c7,#fff1e8,#ff004d,#ffa300,#ffe727,#00e232,#29adff,#83769c,#ff77a8,#ffccaa`.split(',')
 
@@ -45,12 +48,15 @@ Array.from(document.querySelectorAll('[data-scroll]')).forEach(btn => btn.addEve
 // editor actions
 Array.from(document.querySelectorAll('[data-action]')).forEach(btn => btn.addEventListener('click', exec))
 
+// Zoom tracking
+canvas.addEventListener('wheel', trackWheel)
+
 
 
 // Onload
 setTimeout(_ => {
   // set zoom
-  changeZoom()
+  changeZoom(autoZoom())
   toggleGrid(1)
   toggleCheckerboard(1)
 
@@ -122,6 +128,25 @@ function touch(e) {
   console.log(e)
 }
 
+function trackWheel(e) {
+  trackZoom(e.deltaY / 5)
+}
+
+zoomScaling = 0
+function trackZoom(delta) {
+  zoomScaling += delta
+
+  if (zoomScaling > 1) {
+    --zoomScaling
+    fineZoom(+1)
+  }
+
+  if (zoomScaling < -1) {
+    ++zoomScaling
+    fineZoom(-1)
+  }
+}
+
 function canvasCoords(e) {
   let xOrigin = e.clientX - e.target.clientLeft,
       yOrigin = e.clientY - e.target.clientTop,
@@ -189,8 +214,8 @@ function resizeCanvas(e) {
     ctx.putImageData(cd, 0,0)
   }
 
-  ctx.canvas.dataset.w = canvas.width
-  ctx.canvas.dataset.h = canvas.height
+  globalState.cw = canvas.width
+  globalState.ch = canvas.height
   updateCanvasStyle()
 
   popup(`${ctx.canvas.width}x${ctx.canvas.height}`, 900)
@@ -198,10 +223,10 @@ function resizeCanvas(e) {
 }
 
 function updateCanvasStyle() {
-  let s = `--cw: ${canvas.dataset.w}; --ch: ${canvas.dataset.h};`
-  if (canvas.dataset.zoom) s += ` --zoom: ${canvas.dataset.zoom};`
+  let s = `--cw: ${globalState.cw}; --ch: ${globalState.ch};`
+  if (globalState.zoom) s += ` --zoom: ${globalState.zoom};`
 
-  canvas.style = s;
+  document.body.style = s;
 }
 
 
@@ -255,7 +280,7 @@ function exportpif() {
 function exec(e) {
   switch(e.target.dataset.action) {
     case 'resize':
-      document.body.dataset.currently= document.body.dataset.currently ? '' : 'sizing'
+      globalState.currently = globalState.currently ? '' : 'sizing'
       break
 
     case 'export':
@@ -298,21 +323,32 @@ function exec(e) {
   }
 }
 
-function changeZoom() {
-  let zlevel = ZOOM_LEVELS.indexOf(zoom)
-  zlevel = zlevel === -1 || zlevel === ZOOM_LEVELS.length-1 ? 0 : zlevel+1
+function autoZoom() {
+  return Math.floor(document.querySelector('.artboard').clientWidth / canvas.width * .8)
+}
 
-  zoom = ZOOM_LEVELS[zlevel]
+function fineZoom(zoomInOut) {
+  changeZoom(zoom + zoomInOut)
+}
 
-  if (zoom === null) {
-    delete document.body.dataset.zoom
-    delete canvas.dataset.zoom
+function changeZoom(z) {
+  if (z) {
+    zoom = z
   } else {
-    document.body.dataset.zoom = `${zoom}x`
-    canvas.dataset.zoom = zoom
+    let nextZoomLevel = ZOOM_LEVELS.filter(l => l > zoom).shift()
+
+    if (!nextZoomLevel) {
+      zoom = zoom < autoZoom() ? autoZoom() : ZOOM_LEVELS[0]
+    } else {
+      zoom = nextZoomLevel
+    }
   }
 
-  popup(zoom ? `${zoom}x` : 'zoom off')
+  if (zoom<2) zoom = 2
+
+  globalState.zoom = zoom
+
+  //if (!z) popup(`${zoom}x`)
   updateCanvasStyle()
 }
 
@@ -359,7 +395,6 @@ function putSprite(sprite, id) {
   resizeCanvas()
 }
 
-const globalState = document.body.dataset;
 function toggleCheckerboard(newState = !globalState.checkerboard) {
   //document.querySelector('.artboard canvas').classList.toggle('checkerboard')
 
