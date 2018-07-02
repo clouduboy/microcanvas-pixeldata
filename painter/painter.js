@@ -55,12 +55,7 @@ canvas.addEventListener('wheel', trackWheel)
 
 // Onload
 setTimeout(_ => {
-  // set zoom
-  changeZoom(autoZoom())
-  toggleGrid(1)
-  toggleCheckerboard(1)
-
-  // set palette
+  // set default palette
   setPalette(PAL_PICO8)
   paintcolor = '#fff1e8'
 
@@ -76,6 +71,13 @@ setTimeout(_ => {
   } else {
     loadSprite()
   }
+
+  // set zoom
+  changeZoom(autoZoom())
+  toggleGrid(1)
+  toggleCheckerboard(1)
+
+  window.addEventListener('resize', () => changeZoom(autoZoom()))
 }, 1)
 
 
@@ -309,6 +311,7 @@ function exec(e) {
           let sprite = new PixelData(tx.value)
           if (sprite) {
             putSprite(sprite)
+            changeZoom(autoZoom())
             tx.remove()
           } else {
             console.log('Invalid PixelData!')
@@ -324,7 +327,13 @@ function exec(e) {
 }
 
 function autoZoom() {
-  return Math.floor(document.querySelector('.artboard').clientWidth / canvas.width * .8)
+  const artb = document.querySelector('.artboard')
+  const az = Math.min(
+    Math.floor(artb.clientWidth / canvas.width * .8),
+    Math.floor(artb.clientHeight / canvas.height * .8)
+  )
+  console.log(`AutoZoom: ${az}`)
+  return az
 }
 
 function fineZoom(zoomInOut) {
