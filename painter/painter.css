@@ -1,5 +1,6 @@
 @import url(info-overlay.css);
 @import url(artboard.css);
+@import url(ui.css);
 
 body {
   background: black;
@@ -9,67 +10,6 @@ canvas {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
-}
-
-.tool-palette,
-.color-palette {
-  position: absolute;
-  top: 0;
-  width: 12vmin;
-  height: 100vh;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.tool-palette button,
-.color-palette button {
-	flex: 1;
-	background: transparent;
-  padding: 0;
-	border: .2em solid white;
-  transition: all .2s ease;
-
-  color: black;
-	font-size: 3vw;
-	font-weight: bold;
-	text-shadow: .075em .075em white, -.075em -.075em white,-.075em .075em white, .075em -.075em white, 0 -.075em white, 0 .075em white, -.075em 0 white, .075em 0 white;
-	-webkit-text-stroke: .01em white;
-}
-
-.tool-palette button:active,
-.color-palette button:active {
-  border-color: black;
-}
-
-.tool-palette button.current {
-  background: #06d;
-}
-
-@media (min-aspect-ratio: 4/3) {
-  .tool-palette button {
-    text-orientation: upright;
-    writing-mode: vertical-lr;
-    font-size: 3vh;
-  }
-}
-
-
-.tool-palette {
-  left: 0;
-}
-
-.tool-palette button {
-	background: #0cf;
-	margin-bottom: .2em;
-}
-.tool-palette button:active {
-  background-color: white;
-}
-
-.color-palette {
-  right: 0;
-  background: green;
 }
 
 

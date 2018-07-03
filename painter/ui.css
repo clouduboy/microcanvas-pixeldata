@@ -1,0 +1,123 @@
+.tool-palette,
+.color-palette {
+  position: absolute;
+  top: 0;
+  width: 12vmin;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+[data-framestrip="on"] .tool-palette,
+[data-framestrip="on"] .color-palette {
+  height: 75vh;
+}
+
+.tool-palette button,
+.color-palette button {
+	flex: 1;
+	background: transparent;
+  padding: 0;
+	border: .2em solid white;
+  transition: all .2s ease;
+
+  color: black;
+	font-size: 3vw;
+	font-weight: bold;
+	text-shadow: .075em .075em white, -.075em -.075em white,-.075em .075em white, .075em -.075em white, 0 -.075em white, 0 .075em white, -.075em 0 white, .075em 0 white;
+	-webkit-text-stroke: .01em white;
+}
+
+.tool-palette button:active,
+.color-palette button:active {
+  border-color: black;
+}
+
+.tool-palette button.current {
+  background: #06d;
+}
+/*
+@media (min-aspect-ratio: 4/3) {
+  .tool-palette button {
+    text-orientation: upright;
+    writing-mode: vertical-lr;
+    font-size: 3vh;
+  }
+}
+*/
+
+
+
+.tool-palette {
+  left: 0;
+}
+
+.tool-palette button {
+	background: #0cf;
+	margin-bottom: .2em;
+}
+.tool-palette button:active {
+  background-color: white;
+}
+
+.color-palette {
+  right: 0;
+  background: green;
+}
+
+
+
+
+
+
+
+
+.tool-palette button {
+  flex: 1;
+  background: transparent;
+  padding: 0;
+  padding-top: 75%;
+
+  border: .3em solid transparent;
+  border-radius: 0.8em;
+
+  transition: all .2s ease;
+  color: black;
+  font-size: 2.5vw;
+  font-weight: bold;
+  text-shadow: .075em .075em white, -.075em -.075em white,-.075em .075em white, .075em -.075em white, 0 -.075em white, 0 .075em white, -.075em 0 white, .075em 0 white;
+  -webkit-text-stroke: .01em white;
+  box-shadow: .2em .3em .6em rgba(200,100,255,.6) inset;
+}
+
+@media (min-aspect-ratio: 4/3) {
+  .tool-palette button {
+    font-size: 2.5vmin;
+  }
+}
+
+
+.tool-palette button {
+  background: #63f;
+  margin-bottom: .6em;
+}
+
+.tool-palette button.current {
+  background: #f0b;
+}
+
+.tool-palette button:hover,
+.tool-palette button:focus,
+.tool-palette button:active {
+  outline: none;
+  border-color: white;
+}
+
+/* demo */
+.tool-palette button:first-of-type {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='white' fill-rule='evenodd'%3E%3Cpath d='M1 0 H9 V10 H1 Z M2 1 H8 V4 H2 Z M3 6 H4 V7 H5 V8 H4 V9 H3 V8 H2 V7 H3 Z M6 7 H7 V8 H6 Z M7 6 H8 V7 H7 Z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 80%;
+}

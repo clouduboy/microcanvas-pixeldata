@@ -17,6 +17,10 @@
   align-items: center;
 }
 
+[data-framestrip="on"] .artboard {
+  --artboard-h: 75vh;
+}
+
 .artboard canvas {
   --pixelsize: calc(var(--zoom, 16) * 1px);
 
@@ -27,10 +31,10 @@
   height: var(--canvash);
 
   border: 1em solid rgba(0,0,0,.75);
-  border-top-width: calc( (100vh - var(--canvasw)) / 2 );
-  border-bottom-width: calc( (100vh - var(--canvasw)) / 2 );
-  border-left-width: calc( (100vw - var(--canvash)) / 2 );
-  border-right-width: calc( (100vw - var(--canvash)) / 2 );
+  border-top-width:    calc( (var(--artboard-h) - var(--canvash)) / 2 );
+  border-bottom-width: calc( (var(--artboard-h) - var(--canvash)) / 2 );
+  border-left-width:  calc( (100vw - var(--canvasw)) / 2 );
+  border-right-width: calc( (100vw - var(--canvasw)) / 2 );
 }
 
 main .artboard canvas {

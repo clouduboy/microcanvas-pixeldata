@@ -416,3 +416,8 @@ function toggleGrid(newState = !globalState.grid) {
   if (newState) return globalState.grid=1
   delete globalState.grid
 }
+
+
+function toggleFramestrip() {
+  document.body.dataset.framestrip = "on"
+}
