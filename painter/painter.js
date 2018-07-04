@@ -72,6 +72,9 @@ setTimeout(_ => {
     loadSprite()
   }
 
+  // scroll Mobile Chrome to hide address bar
+  window.scrollTo(0,1);
+
   // set zoom
   changeZoom(autoZoom())
   toggleGrid(1)
