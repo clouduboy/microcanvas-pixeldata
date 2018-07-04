@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flood fill experiment</title>
+    <style>
+    body {
+      background: #204;
+      display: flex;
+      justify-content: space-around;
+      margin: 0;
+      flex-wrap: wrap;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      background: black;
+    }
+
+    img {
+      background: black;
+    }
+    body canvas,
+    body img {
+      display: block;
+      width: 30vw;
+      height: 30vw;
+      margin: .5vw 1vw;
+    }
+    </style>
+  </head>
+
+  <body>
+    <canvas class="source"></canvas>
+
+    <script src="../pixeldata.js"></script>
+    <script src="floodfill.js"></script>
+  </body>
+</html>
