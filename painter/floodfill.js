@@ -50,10 +50,8 @@ findpixels(src, 1)
 
 paint(src)
 
-let img = document.createElement('img')
-img.src = svgdataurl(tosvg(src, 'hotpink'))
-document.body.appendChild(img)
-
+showsvg(src, 'hotpink')
+showsvg(src, 'pink', { method: bitmap2svg_scanline } )
 
 selectpixels(src, 1,0)
 
@@ -101,12 +99,34 @@ function stringify(bitmap) {
   return ret
 }
 
-function tosvg(bitmap, color='currentcolor') {
-  let path = []
-  let x=0, y=0
+function showsvg(bitmap, color, options) {
+  const img = document.createElement('img')
 
-  bitmap.forEach(row => {
+  img.src = svgdataurl(tosvg(bitmap, color, options))
+  document.body.appendChild(img)
+
+  console.log('SVG data length: ', img.src.length)
+}
+
+function tosvg(bitmap, color='currentcolor', options = {}) {
+  const impl = options.method || bitmap2svg_naive
+  const w = bitmap[0].length, h = bitmap.length
+
+  const result = impl({ bitmap, color })
+
+  console.log(impl.name||impl.toString(), result.length)
+
+  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' ${ /*further="svg-options" > <path-s/> */ result }/></svg>`
+}
+
+// Naive impl: each pixel is turned into an 1x1 px filled square
+function bitmap2svg_naive(options) {
+  const path = []
+  let x = 0, y = 0
+
+  options.bitmap.forEach(row => {
     row.forEach(pixel => {
+      // TODO: color check
       if (pixel) path.push(`M${x} ${y}h1v1h-1z`)
       ++x
     })
@@ -114,8 +134,40 @@ function tosvg(bitmap, color='currentcolor') {
     x=0
   })
 
-  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill="${color}" fill-rule="evenodd"><path d='${path.join(' ')}'/></svg>`
+  return `fill="${options.color}" fill-rule="evenodd"><path d='${path.join(' ')}'`
 }
+
+// Scanline: same as naive, but horizontal pixel runs
+// are collapsed into a single filled rectangle
+function bitmap2svg_scanline(options) {
+  const path = []
+  let x = 0, y = 0
+
+  options.bitmap.forEach(row => {
+    let w = 0;
+
+    row.forEach(pixel => {
+      // TODO: color check
+      if (pixel) {
+        if (w == 0) path.push(`M${x} ${y}`)
+        ++w
+      } else {
+        if (w > 0) path.push(`h${w}v1h${-w}z`)
+        w = 0
+      }
+
+      ++x
+    })
+
+    if (w > 0) path.push(`h${w}v1h${-w}z`)
+
+    ++y
+    x = 0
+  })
+
+  return `fill="${options.color}" fill-rule="evenodd"><path d='${path.join(' ')}'`
+}
+
 
 function svgdataurl(svg) {
   return `data:image/svg+xml,${svg.replace(/</g,'%3C').replace(/>/g,'%3E')}`
