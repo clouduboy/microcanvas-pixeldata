@@ -39,10 +39,35 @@ const icons = [
 .#...#.##.
 .##.#####.
 .########.
+`,`
+! in_or_out 10x10
+..........
+..........
+...####...
+..######..
+..##..##..
+..##..##..
+..######..
+...####...
+..........
+..........
+`,`
+! in_or_out 10x10
+
+..........
+...####...
+..######..
+..##..##..
+..##..##..
+.########.
+.########.
+.##....##.
+####..####
+..........
 `,
 ]
 
-let src = normalize(new PixelData(icons[1]).bitmap)
+let src = normalize(new PixelData(icons[3]).bitmap)
 
 
 findpixels(src, 1)
@@ -52,6 +77,7 @@ paint(src)
 
 showsvg(src, 'hotpink')
 showsvg(src, 'pink', { method: bitmap2svg_scanline } )
+showsvg(src, 'crimson', { method: bitmap2svg_edgetrace } )
 
 selectpixels(src, 1,0)
 
@@ -112,7 +138,7 @@ function tosvg(bitmap, color='currentcolor', options = {}) {
   const impl = options.method || bitmap2svg_naive
   const w = bitmap[0].length, h = bitmap.length
 
-  const result = impl({ bitmap, color })
+  const result = impl({ bitmap, color, w, h })
 
   console.log(impl.name||impl.toString(), result.length)
 
@@ -167,6 +193,117 @@ function bitmap2svg_scanline(options) {
 
   return `fill="${options.color}" fill-rule="evenodd"><path d='${path.join(' ')}'`
 }
+
+// Edge Trace: tries to trace object edges
+function bitmap2svg_edgetrace(options) {
+  const path = []
+  let x = 0, y = 8
+
+  const b = options.bitmap
+  const pixel = (x,y) => {
+    if (x < 0 || y < 0 || x >= b.w || y >= b.h) return undefined;
+    return b[y][x]
+  }
+
+  // path.push(`M${x} ${y}h1v1h-1z`)
+  const sx = x, sy = y
+  path.push(`M${x} ${y}`)
+
+  // initial direction could be right, up  or down
+  path.push(`h1`)
+  let d = 'r'
+
+  while (pixel(x,y)) {
+    console.log(x,y,d)
+
+    switch (d) {
+
+    // →       → →      →↑#
+    // x↓  or  x #  or  x #
+    case 'r':
+      if (!pixel(x+1,y)) {
+        path.push(`v1`)
+        d = 'd'
+      } else if (pixel(x+1,y-1)) {
+        x = x+1
+        y = y-1
+        path.push(`v-1`)
+        d = 'u'
+      } else {
+        x = x+1
+        path.push(`h1`)
+      }
+
+      break
+
+    //  →      ↑#      # #
+    // ↑x  or  ↑x  or  ←↑x
+    case 'u':
+      if (!pixel(x,y-1)) {
+        path.push(`h1`)
+        d = 'r'
+      // } else if {
+      } else if (pixel(x-1,y-1)) {
+        x = x-1
+        y = y-1
+        path.push(`h-1`)
+        d = 'l'
+      } else {
+        path.push(`v-1`)
+        y = y-1
+      }
+
+      break
+
+    //  x↓  or  x↓  or  x↓→
+    //  ←       #↓      # #
+    case 'd':
+      if (!pixel(x,y+1)) {
+        path.push(`h-1`)
+        d = 'l'
+      // } else if {
+      } else if (pixel(x+1,y+1)) {
+        x = x+1
+        y = y+1
+        path.push(`h+1`)
+        d = 'r'
+      } else {
+        path.push(`v1`)
+        y = y+1
+      }
+
+      break
+
+    // ↑x  or  # x  or  # x
+    //  ←      ← ←      #↓←
+    case 'l':
+      if (!pixel(x-1,y)) {
+        path.push(`v-1`)
+        d = 'u'
+      } else if (pixel(x-1,y+1)) {
+        x = x-1
+        y = y+1
+        path.push(`v1`)
+        d = 'd'
+      } else {
+        x = x-1
+        path.push(`h-1`)
+      }
+
+      break
+
+    default:
+      path.push(`L9 9z`)
+      x = y = -1 // will break the loop
+    }
+
+    if (x == sx && y == sy) break
+  }
+
+
+  return `fill="${options.color}" fill-rule="evenodd"><path d='${path.join('')}'`
+}
+
 
 
 function svgdataurl(svg) {
