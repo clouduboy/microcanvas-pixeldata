@@ -53,8 +53,7 @@ const icons = [
 ..........
 `,`
 ! in_or_out 10x10
-
-..........
+....##....
 ...####...
 ..######..
 ..##..##..
@@ -64,10 +63,22 @@ const icons = [
 .##....##.
 ####..####
 ..........
+`,`
+! spiral 10x10
+##########
+#.........
+#.#######.
+#.#.....#.
+#.#.###.#.
+#.#.#.#.#.
+#.#...#.#.
+#.#####.#.
+#.......#.
+#########.
 `,
 ]
 
-let src = normalize(new PixelData(icons[3]).bitmap)
+let src = normalize(new PixelData(icons[4]).bitmap)
 
 
 findpixels(src, 1)
@@ -77,7 +88,10 @@ paint(src)
 
 showsvg(src, 'hotpink')
 showsvg(src, 'pink', { method: bitmap2svg_scanline } )
+
 showsvg(src, 'crimson', { method: bitmap2svg_edgetrace } )
+
+showsvg(normalize(new PixelData(icons[3]).bitmap), 'crimson', { method: bitmap2svg_edgetrace, origin: [0,8] } )
 
 selectpixels(src, 1,0)
 
@@ -130,15 +144,13 @@ function showsvg(bitmap, color, options) {
 
   img.src = svgdataurl(tosvg(bitmap, color, options))
   document.body.appendChild(img)
-
-  console.log('SVG data length: ', img.src.length)
 }
 
 function tosvg(bitmap, color='currentcolor', options = {}) {
   const impl = options.method || bitmap2svg_naive
   const w = bitmap[0].length, h = bitmap.length
 
-  const result = impl({ bitmap, color, w, h })
+  const result = impl({ bitmap, color, w, h, origin: options.origin||[] })
 
   console.log(impl.name||impl.toString(), result.length)
 
@@ -197,24 +209,35 @@ function bitmap2svg_scanline(options) {
 // Edge Trace: tries to trace object edges
 function bitmap2svg_edgetrace(options) {
   const path = []
-  let x = 0, y = 8
+  // TODO: detect (all) starting x/y coords for all shape(s)
+  let sx = (options.origin&&options.origin[0])||0,
+      sy = (options.origin&&options.origin[1])||0
+  let x = sx, y = sy
 
   const b = options.bitmap
   const pixel = (x,y) => {
-    if (x < 0 || y < 0 || x >= b.w || y >= b.h) return undefined;
+    if (x < 0 || y < 0 || x >= options.w || y >= options.h) return undefined;
     return b[y][x]
   }
 
-  // path.push(`M${x} ${y}h1v1h-1z`)
-  const sx = x, sy = y
-  path.push(`M${x} ${y}`)
+  // initial direction could be any one of the four
+  let d
+  if (!pixel(x-1,y)) {
+    path.push(`M${x} ${y+1}v-1`)
+    d = 'u'
+  } else if (!pixel(x,y-1)) {
+    path.push(`M${x} ${y}h1`)
+    d = 'r'
+  } else if (!pixel(x+1,y)) {
+    path.push(`M${x+1} ${y}v1`)
+    d = 'd'
+  } else {
+    path.push(`M${x+1} ${y+1}h-1`)
+    d = 'l'
+  }
 
-  // initial direction could be right, up  or down
-  path.push(`h1`)
-  let d = 'r'
 
   while (pixel(x,y)) {
-    console.log(x,y,d)
 
     switch (d) {
 
@@ -265,7 +288,7 @@ function bitmap2svg_edgetrace(options) {
       } else if (pixel(x+1,y+1)) {
         x = x+1
         y = y+1
-        path.push(`h+1`)
+        path.push(`h1`)
         d = 'r'
       } else {
         path.push(`v1`)
@@ -297,11 +320,21 @@ function bitmap2svg_edgetrace(options) {
       x = y = -1 // will break the loop
     }
 
-    if (x == sx && y == sy) break
+    // did we come full circle?
+    if (path.length>3 && x == sx && y == sy) break
   }
 
+  // Collapse/optimize away consecutive 1px moves in the
+  // TODO: svgo-style optimize with absolute coords where it makes sense
+  // (e.g. h-17 at (17,0) => H0)
+  let opt = path.join('').replace(
+    // due to the nature of the algorithm h-1h1h-1 back'n'forth-s don't
+    // naturally occur so we don't have to guard for them below
+    /(h\-?1){2,}|(v\-?1){2,}/g,
+    r => r[0] + (r[1]=='-' ? '-'+r.length/3 : r.length/2)
+  )
 
-  return `fill="${options.color}" fill-rule="evenodd"><path d='${path.join('')}'`
+  return `fill="${options.color}" fill-rule="evenodd"><path d='${opt}'`
 }
 
 
