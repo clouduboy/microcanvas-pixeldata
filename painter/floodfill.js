@@ -86,28 +86,31 @@ findpixels(src, 1)
 
 paint(src)
 
-showsvg(src, 'hotpink')
-showsvg(src, 'pink', { method: bitmap2svg_scanline } )
-
-showsvg(src, 'crimson', { method: bitmap2svg_edgetrace } )
-
-showsvg(normalize(new PixelData(icons[3]).bitmap), 'crimson', { method: bitmap2svg_edgetrace, origin: [0,8] } )
-
 selectpixels(src)
-
 selectpixels(src, 'skyblue', { origin: [1,0], algo: flood_rdlu } )
-
-selectpixels(src, 'orange', { origin: [1,0], algo: flood_spread })
-selectpixels(src, 'brown',  { origin: [8,8], algo: flood_spread })
-
-selectpixels(src, 'yellow', { origin: [6,6], algo: flood_rdlu, continuous:false })
-selectpixels(src, 'cyan',   { origin: [6,6], algo: flood_spread, continuous:false })
-selectpixels(src, 'lime',   { origin: [1,1], algo: flood_spread, continuous:false })
 
 // No [origin] specified = select automatically
 // TODO: maybe let the user here specify which algo
 // to use to find the initial origin coordinates?
-selectpixels(normalize(new PixelData(icons[0]).bitmap), 'fuchsia', { algo: flood_spread, continuous: false, shapes: true } )
+selectpixels(src, 'green',   { algo: flood_spread, continuous:false })
+showsvg(src, 'lightgreen', { method: bitmap2svg_scanline } )
+showsvg(src, 'lime', { method: bitmap2svg_edgetrace } )
+
+{
+  let src = normalize(new PixelData(icons[3]).bitmap)
+
+  selectpixels(src, 'blue', { algo: flood_spread, continuous: false, shapes: true } )
+  showsvg(src, 'skyblue', { method: bitmap2svg_scanline } )
+  showsvg(src, 'cyan', { method: bitmap2svg_edgetrace } )
+}
+
+{
+  let src = normalize(new PixelData(icons[0]).bitmap)
+
+  selectpixels(src, 'hotpink', { algo: flood_spread, continuous: false, shapes: true } )
+  showsvg(src, 'pink', { method: bitmap2svg_scanline } )
+  showsvg(src, 'fuchsia', { method: bitmap2svg_edgetrace  } )
+}
 
 
 
@@ -152,6 +155,10 @@ function showsvg(bitmap, color, options) {
 }
 
 function tosvg(bitmap, color='currentcolor', options = {}) {
+  // TODO: automatic impl method selection:
+  // Use best (e.g. edge trace) algo first, render resulting svg
+  // to canvas and diff with naive impl, make sure it renders
+  // correctly, otherwise fall back to naive output.
   const impl = options.method || bitmap2svg_naive
   const w = bitmap[0].length, h = bitmap.length
 
@@ -180,7 +187,7 @@ function bitmap2svg_naive(options) {
   return `fill="${options.color}" fill-rule="evenodd"><path d='${path.join(' ')}'`
 }
 
-// Scanline: same as naive, but horizontal pixel runs
+// Scanline: same as naiveconst sel = getselection\(bitmap, algoopts\), but horizontal pixel runs
 // are collapsed into a single filled rectangle
 function bitmap2svg_scanline(options) {
   const path = []
@@ -213,131 +220,170 @@ function bitmap2svg_scanline(options) {
 
 // Edge Trace: tries to trace object edges
 function bitmap2svg_edgetrace(options) {
-  const path = []
-  // TODO: detect (all) starting x/y coords for all shape(s)
-  let sx = (options.origin&&options.origin[0])||0,
-      sy = (options.origin&&options.origin[1])||0
-  let x = sx, y = sy
-
   const b = options.bitmap
+  const paths = []
+
   const pixel = (x,y) => {
     if (x < 0 || y < 0 || x >= options.w || y >= options.h) return undefined;
     return b[y][x]
   }
 
-  // initial direction could be any one of the four
-  let d
-  if (!pixel(x-1,y)) {
-    path.push(`M${x} ${y+1}v-1`)
-    d = 'u'
-  } else if (!pixel(x,y-1)) {
-    path.push(`M${x} ${y}h1`)
-    d = 'r'
-  } else if (!pixel(x+1,y)) {
-    path.push(`M${x+1} ${y}v1`)
-    d = 'd'
-  } else {
-    path.push(`M${x+1} ${y+1}h-1`)
-    d = 'l'
-  }
+  const trace = (sx,sy) => {
+    const path = []
+    let x = sx, y = sy
 
-
-  while (pixel(x,y)) {
-
-    switch (d) {
-
-    // →       → →      →↑#
-    // x↓  or  x #  or  x #
-    case 'r':
-      if (!pixel(x+1,y)) {
-        path.push(`v1`)
-        d = 'd'
-      } else if (pixel(x+1,y-1)) {
-        x = x+1
-        y = y-1
-        path.push(`v-1`)
-        d = 'u'
-      } else {
-        x = x+1
-        path.push(`h1`)
-      }
-
-      break
-
-    //  →      ↑#      # #
-    // ↑x  or  ↑x  or  ←↑x
-    case 'u':
-      if (!pixel(x,y-1)) {
-        path.push(`h1`)
-        d = 'r'
-      // } else if {
-      } else if (pixel(x-1,y-1)) {
-        x = x-1
-        y = y-1
-        path.push(`h-1`)
-        d = 'l'
-      } else {
-        path.push(`v-1`)
-        y = y-1
-      }
-
-      break
-
-    //  x↓  or  x↓  or  x↓→
-    //  ←       #↓      # #
-    case 'd':
-      if (!pixel(x,y+1)) {
-        path.push(`h-1`)
-        d = 'l'
-      // } else if {
-      } else if (pixel(x+1,y+1)) {
-        x = x+1
-        y = y+1
-        path.push(`h1`)
-        d = 'r'
-      } else {
-        path.push(`v1`)
-        y = y+1
-      }
-
-      break
-
-    // ↑x  or  # x  or  # x
-    //  ←      ← ←      #↓←
-    case 'l':
-      if (!pixel(x-1,y)) {
-        path.push(`v-1`)
-        d = 'u'
-      } else if (pixel(x-1,y+1)) {
-        x = x-1
-        y = y+1
-        path.push(`v1`)
-        d = 'd'
-      } else {
-        x = x-1
-        path.push(`h-1`)
-      }
-
-      break
-
-    default:
-      path.push(`L9 9z`)
-      x = y = -1 // will break the loop
+    // initial direction could be any one of the four
+    let d, initd
+    if (!pixel(x-1,y)) {
+      path.push(`M${x} ${y+1}v-1`)
+      d = 'u'
+    } else if (!pixel(x,y-1)) {
+      path.push(`M${x} ${y}h1`)
+      d = 'r'
+    } else if (!pixel(x+1,y)) {
+      path.push(`M${x+1} ${y}v1`)
+      d = 'd'
+    } else {
+      path.push(`M${x+1} ${y+1}h-1`)
+      d = 'l'
     }
 
-    // did we come full circle?
-    if (path.length>3 && x == sx && y == sy) break
+    initd = d
+    while (pixel(x,y)) {
+
+      switch (d) {
+
+      // →       → →      →↑#
+      // x↓  or  x #  or  x #
+      case 'r':
+        if (!pixel(x+1,y)) {
+          path.push(`v1`)
+          d = 'd'
+        } else if (pixel(x+1,y-1)) {
+          x = x+1
+          y = y-1
+          path.push(`v-1`)
+          d = 'u'
+        } else {
+          x = x+1
+          path.push(`h1`)
+        }
+
+        break
+
+      //  →      ↑#      # #
+      // ↑x  or  ↑x  or  ←↑x
+      case 'u':
+        if (!pixel(x,y-1)) {
+          path.push(`h1`)
+          d = 'r'
+        // } else if {
+        } else if (pixel(x-1,y-1)) {
+          x = x-1
+          y = y-1
+          path.push(`h-1`)
+          d = 'l'
+        } else {
+          path.push(`v-1`)
+          y = y-1
+        }
+
+        break
+
+      //  x↓  or  x↓  or  x↓→
+      //  ←       #↓      # #
+      case 'd':
+        if (!pixel(x,y+1)) {
+          path.push(`h-1`)
+          d = 'l'
+        // } else if {
+        } else if (pixel(x+1,y+1)) {
+          x = x+1
+          y = y+1
+          path.push(`h1`)
+          d = 'r'
+        } else {
+          path.push(`v1`)
+          y = y+1
+        }
+
+        break
+
+      // ↑x  or  # x  or  # x
+      //  ←      ← ←      #↓←
+      case 'l':
+        if (!pixel(x-1,y)) {
+          path.push(`v-1`)
+          d = 'u'
+        } else if (pixel(x-1,y+1)) {
+          x = x-1
+          y = y+1
+          path.push(`v1`)
+          d = 'd'
+        } else {
+          x = x-1
+          path.push(`h-1`)
+        }
+
+        break
+
+      default:
+        // TODO: ?
+        path.push(`L9 9z`)
+        x = y = -1 // will break the loop
+      }
+
+      // did we come full circle?
+      // (arrived back to the same pixel and with the initial direction)
+      if (path.length>3 && x == sx && y == sy && d == initd) {
+        path.pop() // pop last path => it's a duplicate of the first
+
+        // Remove last move and replace with "z" (connect to start)
+        path.pop()
+        path.push('z')
+        break
+      }
+    }
+
+    return path
   }
+
+  // Detect all subshapes
+  const sel = getselection(b, { algo: flood_spread, continuous: false, shapes: true })
+  console.log('Subpath selections: ', sel)
+
+  sel.shapes.forEach(shape => {
+    // shape.origin can be (and usually is) in the middle of the
+    // shape - we need to choose a nice edge pixel
+    let sx, sy, score = 0
+    for (const px of shape.pixels) {
+      // TODO: fix this mess!
+      const [x,y] = px.split(',').map(n => parseInt(n,10))
+      const pixelscore = !pixel(x-1,y)+!pixel(x+1,y)+!pixel(x,y-1)+!pixel(x,y+1)
+      if (pixelscore>score) {
+        score = pixelscore
+        sx = x
+        sy = y
+
+        // max score is 4 (individual disconnectedpixel)
+        if (pixelscore == 4) break
+      }
+    }
+    paths.push(trace(sx,sy))
+  })
+  console.log(paths)
 
   // Collapse/optimize away consecutive 1px moves in the
   // TODO: svgo-style optimize with absolute coords where it makes sense
   // (e.g. h-17 at (17,0) => H0)
-  let opt = path.join('').replace(
+  let opt = paths.map(segment => segment.join('')).join('').replace(
     // due to the nature of the algorithm h-1h1h-1 back'n'forth-s don't
     // naturally occur so we don't have to guard for them below
     /(h\-?1){2,}|(v\-?1){2,}/g,
     r => r[0] + (r[1]=='-' ? '-'+r.length/3 : r.length/2)
   )
+
+  // TODO: Add negative (cutout) shapes
 
   return `fill="${options.color}" fill-rule="evenodd"><path d='${opt}'`
 }
@@ -418,7 +464,6 @@ function getselection(source, options = {}) {
   s.origin = origin
   s.ox = origin[0]
   s.oy = origin[1]
-  console.log('\n\nORIGIN:',origin,'\n\n')
 
   // Run shape-finding algo
   s.algo(s.ox,s.oy)
