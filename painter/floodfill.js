@@ -97,6 +97,7 @@ showsvg(src, 'lightgreen', { method: bitmap2svg_scanline } )
 showsvg(src, 'lime', { method: bitmap2svg_edgetrace } )
 
 {
+  console.log(icons[3])
   let src = normalize(new PixelData(icons[3]).bitmap)
 
   selectpixels(src, 'blue', { algo: flood_spread, continuous: false, shapes: true } )
@@ -105,11 +106,21 @@ showsvg(src, 'lime', { method: bitmap2svg_edgetrace } )
 }
 
 {
+  console.log(icons[0])
   let src = normalize(new PixelData(icons[0]).bitmap)
 
   selectpixels(src, 'hotpink', { algo: flood_spread, continuous: false, shapes: true } )
   showsvg(src, 'pink', { method: bitmap2svg_scanline } )
   showsvg(src, 'fuchsia', { method: bitmap2svg_edgetrace  } )
+}
+
+{
+  console.log(icons[1])
+  let src = normalize(new PixelData(icons[1]).bitmap)
+
+  selectpixels(src, 'brown', { algo: flood_spread, continuous: false, shapes: true } )
+  showsvg(src, 'yellow', { method: bitmap2svg_scanline } )
+  showsvg(src, 'orange', { method: bitmap2svg_edgetrace  } )
 }
 
 
@@ -164,9 +175,9 @@ function tosvg(bitmap, color='currentcolor', options = {}) {
 
   const result = impl({ bitmap, color, w, h, origin: options.origin||[] })
 
-  console.log(impl.name||impl.toString(), result.length)
+  console.log('Using SVG tracer: ', impl.name||impl.toString(), ' - SVG path length: ', result.length, 'bytes')
 
-  return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' ${ /*further="svg-options" > <path-s/> */ result }/></svg>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">${result}</svg>`
 }
 
 // Naive impl: each pixel is turned into an 1x1 px filled square
@@ -184,7 +195,13 @@ function bitmap2svg_naive(options) {
     x=0
   })
 
-  return `fill="${options.color}" fill-rule="evenodd"><path d='${path.join(' ')}'`
+  // Just return the path segments (usually other impl-s use
+  // this to embed rendering of various sub-paths)
+  if (options.pathonly) {
+    return path.join('')
+  }
+
+  return `<path fill="${options.color}" d="${path.join('')}"/>`
 }
 
 // Scanline: same as naiveconst sel = getselection\(bitmap, algoopts\), but horizontal pixel runs
@@ -215,7 +232,13 @@ function bitmap2svg_scanline(options) {
     x = 0
   })
 
-  return `fill="${options.color}" fill-rule="evenodd"><path d='${path.join(' ')}'`
+  // Just return the path segments (usually other impl-s use
+  // this to embed rendering of various sub-paths)
+  if (options.pathonly) {
+    return path.join()
+  }
+
+  return `<path fill="${options.color}" d="${path.join('')}"/>`
 }
 
 // Edge Trace: tries to trace object edges
@@ -350,28 +373,79 @@ function bitmap2svg_edgetrace(options) {
 
   // Detect all subshapes
   const sel = getselection(b, { algo: flood_spread, continuous: false, shapes: true })
-  console.log('Subpath selections: ', sel)
 
+  const cutout = {
+    pixels: new Map(),
+    shapes: [],
+    paths: []
+  }
   sel.shapes.forEach(shape => {
     // shape.origin can be (and usually is) in the middle of the
     // shape - we need to choose a nice edge pixel
     let sx, sy, score = 0
-    for (const px of shape.pixels) {
-      // TODO: fix this mess!
-      const [x,y] = px.split(',').map(n => parseInt(n,10))
-      const pixelscore = !pixel(x-1,y)+!pixel(x+1,y)+!pixel(x,y-1)+!pixel(x,y+1)
+    for (const [x,y] of shape.pixels.values()) {
+      // Neighbouring pixels around, u/r/d/l
+      const npx = [
+        [x,y-1], [x+1,y], [x,y+1], [x-1,y]
+      ]
+
+      // Current pixel edge score
+      // 0 => not edge at all,
+      // 4 => full disconnected single pixel
+      const pixelscore = npx.map(px => !pixel(px[0],px[1])|0).reduce((a,b) => a+b)
+
+      // Keep track of pixel with the best score
       if (pixelscore>score) {
         score = pixelscore
         sx = x
         sy = y
-
-        // max score is 4 (individual disconnectedpixel)
-        if (pixelscore == 4) break
       }
+
+      // Use the neighbors of edge pixels to build a list of cutout shapes
+      if (pixelscore > 0) {
+        npx.filter(px => pixel(px[0],px[1]) === 0).forEach(([x,y]) => {
+          // Find all possible cutout pixels
+          if (!cutout.pixels.has(`${x},${y}`)) {
+            cutout.pixels.set(`${x},${y}`, [x,y])
+
+            // Find all transparent pixels connected to this edge pixel
+            // to form the cutout shape
+            let newcpx = getselection(b, { algo: flood_spread, color: 0, origin: [x,y] })
+
+            // All newcpx pixels are stored
+            cutout.pixels = new Map([...cutout.pixels, ...newcpx.pixels])
+
+            // Can only be a cutout shape if has no edge pixels
+            if (Array.from(newcpx.pixels.values()).filter(
+              // Checks for pixels around the edge of the sprite
+              ([x,y]) => x%(newcpx.w-1) === 0 || y%(newcpx.h-1) === 0
+            ).length == 0) {
+              cutout.shapes.push({
+                origin: newcpx.origin,
+                pixels: newcpx.pixels
+              })
+
+              let impl = bitmap2svg_edgetrace
+              let cutpath = impl(Object.assign({}, {
+                bitmap: pixels2bitmap(Object.assign({}, newcpx, { color: 1 })),
+                w: newcpx.w,
+                h: newcpx.h,
+                // return only the path segments
+                pathonly: true
+              }))
+              cutout.paths.push(cutpath)
+              paths.push([cutpath])
+            }
+          }
+        })
+
+        // Snip out the cutout shapes :)
+        //if ()
+      }
+
     }
     paths.push(trace(sx,sy))
   })
-  console.log(paths)
 
   // Collapse/optimize away consecutive 1px moves in the
   // TODO: svgo-style optimize with absolute coords where it makes sense
@@ -384,8 +458,23 @@ function bitmap2svg_edgetrace(options) {
   )
 
   // TODO: Add negative (cutout) shapes
+  // TODO: we don't need the fill-rule if we reverse path direction of
+  // the cutout shapes:
+  // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill-rule#nonzero
 
-  return `fill="${options.color}" fill-rule="evenodd"><path d='${opt}'`
+  // Just return the path segments (usually other impl-s use
+  // this to embed rendering of various sub-paths)
+  if (options.pathonly) {
+    return opt
+  }
+
+  console.log(
+    'Total shapes: ', sel.shapes.length,
+    '\nTotal paths: ', paths.length,
+    '\n * of which Cutout paths: ', cutout.paths.length
+  )
+
+  return `<path fill="${options.color}" fill-rule="evenodd" d="${opt}"/>`
 }
 
 
@@ -400,8 +489,33 @@ function normalize(bitmap) {
   return norm
 }
 
+function pixels2bitmap(options) {
+  const { w, h } = options
+  const color = typeof options.color == 'number' ? options.color : 1
+
+  let arr = (new Array(h).fill(null)).map(
+    _ => new Array(w).fill(0)
+  )
+
+  // Fill new array with pixels of specified color
+  // Supports an Array and Map of [x,y] pixel tuples
+  let pixels = (options.pixels instanceof Map
+    ? Array.from(options.pixels.values())
+    : options.pixels
+  )
+
+  pixels.forEach(
+    ([x,y]) => arr[y][x] = color
+  )
+
+  //console.log('All pixels (',pixels.length,'): ')
+  //console.log(new PixelData(arr).pif)
+  return arr
+}
+
 function selectpixels(bitmap, paintcolor='white', algoopts) {
   const sel = getselection(bitmap, algoopts)
+  const pixels = Array.from(sel.pixels.values())
 
   const selc = document.createElement('canvas')
   const sc = selc.getContext('2d')
@@ -412,7 +526,7 @@ function selectpixels(bitmap, paintcolor='white', algoopts) {
   sc.fillStyle = paintcolor
 
   let p = 0
-  const phase = sel.pixels.length
+  const phase = pixels.length
   const phasecallback = () => {
     p++
     if (p>=phase) {
@@ -422,8 +536,7 @@ function selectpixels(bitmap, paintcolor='white', algoopts) {
     if (p>=0) {
       sc.clearRect(0,0,sel.w,sel.h)
       for (let i = 0; i <= p; ++i) {
-        const [x,y] = sel.pixels[i].split(',').map(n => parseInt(n,10))
-        sc.fillRect(x,y,1,1)
+        sc.fillRect(pixels[i][0],pixels[i][1],1,1)
       }
     }
   }
@@ -452,10 +565,10 @@ function getselection(source, options = {}) {
     bitmap: bitmap,
     w: bitmap[0].length,
     h: bitmap.length,
-    pixels: [],
+    pixels: new Map(),
     algo: options.algo || flood_lrud,
     continuous: typeof options.continuous == 'undefined' ? true : !!options.continuous,
-    color: options.color || 1
+    color: typeof options.color == 'number' ? options.color : 1
   }
 
   // Run origin-finding algo
@@ -470,7 +583,6 @@ function getselection(source, options = {}) {
 
   if (!s.continuous) {
     const morepixels = findpixels(bitmap, s.color)
-    console.log(morepixels.length, 'remain of', findpixels(source, 1).length, 'px')
 
     // list all shapes separately?
     if (options.shapes) {
@@ -486,15 +598,12 @@ function getselection(source, options = {}) {
     const nextpixel = morepixels[morepixels.length>>1]
     const subsel = getselection(bitmap, Object.assign({}, options, { origin: nextpixel }))
 
-    s.pixels = s.pixels.concat(subsel.pixels)
+    s.pixels = new Map([...s.pixels, ...subsel.pixels])
     if (options.shapes) {
       s.shapes = s.shapes.concat(subsel.shapes)
     }
 
   }
-
-  console.log(stringify(source))
-  console.log(s)
 
   return s
 }
@@ -503,7 +612,7 @@ function getselection(source, options = {}) {
 function flood_lrud(x,y) {
   if (this.bitmap[y][x]) {
 
-    this.pixels.push(`${x},${y}`)
+    this.pixels.set(`${x},${y}`, [x,y])
 
     this.bitmap[y][x] = 0
 
@@ -517,7 +626,7 @@ function flood_lrud(x,y) {
 function flood_rdlu(x,y) {
   if (this.bitmap[y][x]) {
 
-    this.pixels.push(`${x},${y}`)
+    this.pixels.set(`${x},${y}`, [x,y])
 
     this.bitmap[y][x] = 0
 
@@ -529,20 +638,22 @@ function flood_rdlu(x,y) {
 }
 
 function flood_spread(x,y) {
+  const MATCH = this.color, BLANK = ~this.color
+
   if (!this.$flood_spread_queue) this.$flood_spread_queue = []
   const q = this.$flood_spread_queue
 
   while(true) {
-    if (this.bitmap[y][x]) {
+    if (this.bitmap[y][x] === MATCH) {
 
-      this.pixels.push(`${x},${y}`)
+    this.pixels.set(`${x},${y}`, [x,y])
 
-      this.bitmap[y][x] = 0
+      this.bitmap[y][x] = BLANK
 
-      if (x<this.w-1 && this.bitmap[y][x+1] === this.color) q.push([x+1,y])
-      if (y<this.h-1 && this.bitmap[y+1][x] === this.color) q.push([x,y+1])
-      if (x>0        && this.bitmap[y][x-1] === this.color) q.push([x-1,y])
-      if (y>0        && this.bitmap[y-1][x] === this.color) q.push([x,y-1])
+      if (x<this.w-1 && this.bitmap[y][x+1] === MATCH) q.push([x+1,y])
+      if (y<this.h-1 && this.bitmap[y+1][x] === MATCH) q.push([x,y+1])
+      if (x>0        && this.bitmap[y][x-1] === MATCH) q.push([x-1,y])
+      if (y>0        && this.bitmap[y-1][x] === MATCH) q.push([x,y-1])
     }
 
     const next = q.shift()
