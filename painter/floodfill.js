@@ -107,7 +107,7 @@ selectpixels(src, 'lime',   { origin: [1,1], algo: flood_spread, continuous:fals
 // No [origin] specified = select automatically
 // TODO: maybe let the user here specify which algo
 // to use to find the initial origin coordinates?
-selectpixels(normalize(new PixelData(icons[0]).bitmap), 'fuchsia', { algo: flood_spread, continuous: false } )
+selectpixels(normalize(new PixelData(icons[0]).bitmap), 'fuchsia', { algo: flood_spread, continuous: false, shapes: true } )
 
 
 
@@ -401,7 +401,7 @@ function findpixels(bitmap, color) {
 
 function getselection(source, options = {}) {
   const bitmap = JSON.parse(JSON.stringify(normalize(source)))
-  const s = {
+  let s = {
     // clone source, operate on a duplicate
     bitmap: bitmap,
     w: bitmap[0].length,
@@ -426,13 +426,26 @@ function getselection(source, options = {}) {
   if (!s.continuous) {
     const morepixels = findpixels(bitmap, s.color)
     console.log(morepixels.length, 'remain of', findpixels(source, 1).length, 'px')
-    console.log(morepixels)
 
-    if (morepixels.length) {
-      const nextpixel = morepixels[morepixels.length>>1]
-      const subsel = getselection(bitmap, Object.assign({}, options, { origin: nextpixel }))
-      return Object.assign(subsel, { pixels: s.pixels.concat(subsel.pixels)})
+    // list all shapes separately?
+    if (options.shapes) {
+      s.shapes  = (s.shapes || []).concat([{
+        origin: s.origin,
+        pixels: s.pixels
+      }])
     }
+
+    // no more sub-shapes
+    if (!morepixels.length) return s
+
+    const nextpixel = morepixels[morepixels.length>>1]
+    const subsel = getselection(bitmap, Object.assign({}, options, { origin: nextpixel }))
+
+    s.pixels = s.pixels.concat(subsel.pixels)
+    if (options.shapes) {
+      s.shapes = s.shapes.concat(subsel.shapes)
+    }
+
   }
 
   console.log(stringify(source))
