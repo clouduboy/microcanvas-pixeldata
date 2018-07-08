@@ -93,16 +93,21 @@ showsvg(src, 'crimson', { method: bitmap2svg_edgetrace } )
 
 showsvg(normalize(new PixelData(icons[3]).bitmap), 'crimson', { method: bitmap2svg_edgetrace, origin: [0,8] } )
 
-selectpixels(src, 1,0)
+selectpixels(src)
 
-selectpixels(src, 1,0, 'skyblue', { algo: flood_rdlu } )
+selectpixels(src, 'skyblue', { origin: [1,0], algo: flood_rdlu } )
 
-selectpixels(src, 1,0, 'orange', { algo: flood_spread })
-selectpixels(src, 8,8, 'brown', { algo: flood_spread })
+selectpixels(src, 'orange', { origin: [1,0], algo: flood_spread })
+selectpixels(src, 'brown',  { origin: [8,8], algo: flood_spread })
 
-selectpixels(src, 6,6, 'yellow', { algo: flood_rdlu, continuous:false })
-selectpixels(src, 6,6, 'cyan', { algo: flood_spread, continuous:false })
-selectpixels(src, 1,1, 'lime', { algo: flood_spread, continuous:false })
+selectpixels(src, 'yellow', { origin: [6,6], algo: flood_rdlu, continuous:false })
+selectpixels(src, 'cyan',   { origin: [6,6], algo: flood_spread, continuous:false })
+selectpixels(src, 'lime',   { origin: [1,1], algo: flood_spread, continuous:false })
+
+// No [origin] specified = select automatically
+// TODO: maybe let the user here specify which algo
+// to use to find the initial origin coordinates?
+selectpixels(normalize(new PixelData(icons[0]).bitmap), 'fuchsia', { algo: flood_spread, continuous: false } )
 
 
 
@@ -349,8 +354,8 @@ function normalize(bitmap) {
   return norm
 }
 
-function selectpixels(bitmap, x,y, paintcolor='red', algoopts) {
-  const sel = getselection(bitmap, x,y, algoopts)
+function selectpixels(bitmap, paintcolor='white', algoopts) {
+  const sel = getselection(bitmap, algoopts)
 
   const selc = document.createElement('canvas')
   const sc = selc.getContext('2d')
@@ -394,7 +399,7 @@ function findpixels(bitmap, color) {
     ), [])
 }
 
-function getselection(source, sx,sy, options = {}) {
+function getselection(source, options = {}) {
   const bitmap = JSON.parse(JSON.stringify(normalize(source)))
   const s = {
     // clone source, operate on a duplicate
@@ -407,16 +412,25 @@ function getselection(source, sx,sy, options = {}) {
     color: options.color || 1
   }
 
-  s.algo(sx,sy)
+  // Run origin-finding algo
+  const origin = options.origin || findpixels(bitmap, s.color)[0] || []
+
+  s.origin = origin
+  s.ox = origin[0]
+  s.oy = origin[1]
+  console.log('\n\nORIGIN:',origin,'\n\n')
+
+  // Run shape-finding algo
+  s.algo(s.ox,s.oy)
 
   if (!s.continuous) {
-    const morepixels = findpixels(s.bitmap, 1)
+    const morepixels = findpixels(bitmap, s.color)
     console.log(morepixels.length, 'remain of', findpixels(source, 1).length, 'px')
     console.log(morepixels)
 
     if (morepixels.length) {
       const nextpixel = morepixels[morepixels.length>>1]
-      const subsel = getselection(s.bitmap, nextpixel [0], nextpixel  [1], options)
+      const subsel = getselection(bitmap, Object.assign({}, options, { origin: nextpixel }))
       return Object.assign(subsel, { pixels: s.pixels.concat(subsel.pixels)})
     }
   }
