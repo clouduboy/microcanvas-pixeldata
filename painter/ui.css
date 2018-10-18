@@ -18,8 +18,8 @@
 .color-palette button {
 	flex: 1;
 	background: transparent;
-  padding: 0;
-	border: .2em solid white;
+  padding: 1em 0;
+	border: .2rem solid white;
   transition: all .2s ease;
 
   color: black;
@@ -55,7 +55,7 @@
 
 .tool-palette button {
 	background: #0cf;
-	margin-bottom: .2em;
+	margin-bottom: .2rem;
 }
 .tool-palette button:active {
   background-color: white;
@@ -76,11 +76,14 @@
 .tool-palette button {
   flex: 1;
   background: transparent;
-  padding: 0;
-  padding-top: 75%;
+  padding: 1em 0;
 
-  border: .3em solid transparent;
-  border-radius: 0.8em;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+
+  border: .3rem solid transparent;
+  border-radius: 0.8rem;
 
   transition: all .2s ease;
   color: black;
@@ -100,7 +103,7 @@
 
 .tool-palette button {
   background: #63f;
-  margin-bottom: .6em;
+  margin-bottom: .6rem;
 }
 
 .tool-palette button.current {
@@ -114,10 +117,49 @@
   border-color: white;
 }
 
+.tool-palette button::-moz-focus-inner {
+  border-style: none;
+}
+
+.tool-palette div {
+  flex: 1;
+  width: 16vw;
+  margin-bottom: .2rem;
+  transition: width 1s ease;
+
+  display: none;
+  border: .2rem solid transparent;
+}
+
+
+.tool-palette > button.open {
+  display: none;
+}
+.tool-palette > button.open+div {
+  display: flex;
+  animation: .5s ease 0s 1 forwards open-toolbox;
+}
+
+@keyframes open-toolbox {
+  0% {
+    /*width: 16vw;*/
+    margin-left: -100vw;
+  }
+  100% {
+    margin-left: 0;
+    width: 88vw;
+  }
+}
+
+.tool-palette > div > button {
+  margin-right: .5rem;
+}
+
+
 /* demo */
 .tool-palette button:first-of-type {
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='white' fill-rule='evenodd'%3E%3Cpath d='M1 0 H9 V10 H1 Z M2 1 H8 V4 H2 Z M3 6 H4 V7 H5 V8 H4 V9 H3 V8 H2 V7 H3 Z M6 7 H7 V8 H6 Z M7 6 H8 V7 H7 Z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: center;
-	background-size: 80%;
+	background-size: 10vmin;
 }

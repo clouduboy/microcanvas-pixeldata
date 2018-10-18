@@ -33,6 +33,45 @@
       </div>
       <div class="ui-overlay">
         <aside class="tool-palette">
+          <button data-action="file/">manage</button>
+          <div title="Export/import, store and share current sprite or create a new one...">
+            <button data-action="file/new">new</button>
+            <button data-action="file/load">load / import</button>
+            <button data-action="file/save">save / export</button>
+            <button data-action="file/share">share</button>
+          </div>
+          <button data-action="view/">view</button>
+          <div title="Configure editor view, zoom and grids...">
+            <button data-action="view/zoom">zoom</button>
+            <button data-action="view/toggle-framestrip">framestrip:<br>hidden</button>
+            <button data-action="view/toggle-grid">grid:<br>on</button>
+            <button data-action="view/toggle-tiles">tiles:<br>on</button>
+          </div>
+
+          <button data-action="transform/">t/form</button>
+          <div title="Transform, rotate, mirror the sprite...">
+            <button data-action="transform/pan">pan<!-- nudge up/dn/left/right --></button>
+            <button data-action="transform/mirror">mirror <!-- flip horizontal/vertical --></button>
+            <button data-action="transform/rotate">rotate <!-- clockwise 90deg--></button>
+            <button data-action="transform/clear">clear</button>
+          </div>
+
+          <button data-action="edit/">edit</button>
+          <div title="Change sprite canvas, palette ...">
+            <button data-action="edit/undo">undo</button>
+            <button data-action="edit/paste">paste</button>
+            <button data-action="edit/canvas size">canvas size</button>
+            <button data-action="edit/transform canvas">transform canvas</button>
+            <button data-action="edit/change palette">change palette</button>
+          </div>
+
+          <button data-action="tool/">tools</button>
+          <div title="Tools...">
+            <button data-action="tool/brush">brush:<br>toggle<!-- / pen / eraser / line / box --></button>
+            <button data-action="tool/select">select<!-- selection: add / selection: remove / rect / fill--></button>
+            <button data-action="tool/brush-size">size:<br>1<!-- / 2 / 3 / 4 / 5--></button>
+          </div>
+<!--
           <button data-set-tool="flip">flip</button>
           <button data-set-tool="paint">paint</button>
           <button data-set-tool="erase">erase</button>
@@ -43,6 +82,7 @@
           <button data-action="export">export</button>
 
           <button data-action="zoom">zoom</button>
+-->
         </aside>
         <aside class="color-palette">
           <button data-set-color="rgb(255,0,0)">red</button>

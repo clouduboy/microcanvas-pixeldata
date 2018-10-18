@@ -13,7 +13,7 @@ let paintcolor = 'white'
 let zoom
 const ZOOM_LEVELS = [2, 8, 16, 32]
 
-const PAL_PICO8 = `black,#20337b,#7e2553,#008331,#ab5236,#454545,#c2c3c7,#fff1e8,#ff004d,#ffa300,#ffe727,#00e232,#29adff,#83769c,#ff77a8,#ffccaa`.split(',')
+const PAL_PICO8 = `black,#20337b,#7e2553,#008331,#ab5236,#454545,#c2c3c7,#ffffff,#ff004d,#ffa300,#ffe727,#00e232,#29adff,#83769c,#ff77a8,#ffccaa`.split(',')
 
 
 const canvas = document.querySelector('.artboard canvas')
@@ -82,6 +82,25 @@ setTimeout(_ => {
 
   window.addEventListener('resize', () => changeZoom(autoZoom()))
 }, 1)
+
+
+// toolbar
+document.querySelector('.tool-palette').addEventListener('click', e => {
+  console.log(e.target.dataset.action)
+  // close all others
+  Array.from(document.querySelectorAll('.tool-palette button.open')).forEach(btn => {
+    if (btn !== e.target) btn.classList.remove('open')
+  })
+
+  // toggle current
+  e.target.classList.toggle('open')
+})
+
+document.body.addEventListener('click', e => {
+  Array.from(document.querySelectorAll('.tool-palette button.open')).forEach(btn => {
+    if (btn !== e.target) btn.classList.remove('open')
+  })
+}, true)
 
 
 
@@ -176,9 +195,10 @@ function canvasCoords(e) {
 }
 
 function setPaintTool(e) {
+  if (!e || !e.target) return
   painttool = (e.target.dataset.setTool || 'flip')
-  if (painttool === 'erase') paintmode = false;
-  if (painttool === 'paint') paintmode = true;
+  if (painttool === 'erase') paintmode = false
+  if (painttool === 'paint') paintmode = true
 
   let current = document.querySelector('.tool-palette button.current')
   if (current) current.classList.remove('current')
@@ -281,6 +301,18 @@ function exportpif() {
   sprite.id = spritename
   return sprite.pif
 }
+function serializeImageData(img) {
+  const imagedata = ctx.getImageData(0,0,canvas.width,canvas.height)
+
+  return JSON.stringify({
+    width: imagedata.width,
+    height: imagedata.height,
+    data: Array.from(imagedata.data)
+  })
+}
+function deserializeImageData(src) {
+  return new ImageData(new Uint8ClampedArray(src.data), src.width, src.height)
+}
 
 function exec(e) {
   switch(e.target.dataset.action) {
@@ -289,6 +321,7 @@ function exec(e) {
       break
 
     case 'export':
+    case 'file/save':
       let sprite = exportpif()
       tx = document.createElement('textarea')
       tx.className = 'dialog'
@@ -303,6 +336,7 @@ function exec(e) {
       break
 
     case 'import':
+    case 'file/load':
       tx = document.createElement('textarea')
       tx.className = 'dialog'
       document.body.appendChild(tx)
