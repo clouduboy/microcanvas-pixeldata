@@ -629,8 +629,8 @@ function detectPalette(pal, pdata) {
         switch (h.length-1) {
           case 6:
             i = parseInt(h.substring(1), 16)
-            //return [ i>>16&0xFF , i>>8&0xFF , i&0xFF, 255 ]
-            return [ i>>8&0xF , i>>4&0xF , i&0xF, 0xF ].map( hexColor3to6 )
+            return [ i>>16&0xFF , i>>8&0xFF , i&0xFF, 255 ]
+            //return [ i>>8&0xF , i>>4&0xF , i&0xF, 0xF ].map( hexColor3to6 )
 
           case 3:
             i = parseInt(h.substring(1), 16)
