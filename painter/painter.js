@@ -316,11 +316,12 @@ function deserializeImageData(src) {
 
 function exec(e) {
   switch(e.target.dataset.action) {
-    case 'resize':
+    case 'resize': // TODO: deprecated
+    case 'edit/canvas size':
       globalState.currently = globalState.currently ? '' : 'sizing'
       break
 
-    case 'export':
+    case 'export': // TODO: deprecated
     case 'file/save':
       let sprite = exportpif()
       tx = document.createElement('textarea')
@@ -335,7 +336,7 @@ function exec(e) {
       tx.addEventListener('keydown', (e) => { if (e.key === 'Escape') tx.remove() })
       break
 
-    case 'import':
+    case 'import': // TODO: deprecated
     case 'file/load':
       tx = document.createElement('textarea')
       tx.className = 'dialog'

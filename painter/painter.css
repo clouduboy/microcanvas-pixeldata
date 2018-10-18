@@ -34,10 +34,13 @@ main {
 .sizing.x {
   width: 10vmin;
   flex-direction: column;
+  justify-content: center;
 }
 .sizing.y {
   height: 10vmin;
   width: calc(var(--artboard-w) - 10vmin);
+  flex: 1;
+  justify-content: center;
 }
 .sizing.corner {
   width: 10vmin;
@@ -68,12 +71,12 @@ main {
 }
 
 [data-currently="sizing"] .canvas-overlay.sizing {
-	display: block;
-	width: 80vw;
+	display: flex;
+	width: 70vw;
 	height: 100vh;
 	position: absolute;
 	top: 0;
-	left: 10vw;
+	left: 15vw;
 }
 
 
