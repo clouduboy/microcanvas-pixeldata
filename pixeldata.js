@@ -14,7 +14,14 @@ function PixelData(input) {
   }
 
   // ImageData object (import)
-  if (typeof input === 'object' && (input instanceof ImageData || ('data' in input && input.data instanceof Uint8ClampedArray))) {
+  if (
+    typeof input === 'object' &&
+    // it is an ImageData object
+    ( (typeof ImageData !== 'undefined' && input instanceof ImageData)
+      // it looks like an ImageData object
+      || ('data' in input && input.data instanceof Uint8ClampedArray)
+    )
+  ) {
     return rgba2bitmap(input.data, input.width, input.height)
   }
 
@@ -97,7 +104,7 @@ function PixelData(input) {
 
 PixelData.prototype = {
   get pif() {
-    return bitmap2pif(this.bitmap, this.id, this.frames);
+    return bitmap2pif(this.bitmap, this.id, this.frames, metadata(this));
   },
   get bytes() {
     return bitmap2bytes(this.bitmap, this.w,this.h, this.frames);
@@ -274,10 +281,10 @@ PixelData.prototype = {
 }
 
 
-function bitmap2pif(bitmap, id, frames) {
+function bitmap2pif(bitmap, id, frames, metadata) {
   console.warn('[!] deprecated legacy call to "bitmap2pif()"')
 
-  return (id ? '! ' + id + ' ' +bitmap[0].length+ 'x' + (frames>1 ? (bitmap.length/frames)+ 'x'+frames : bitmap.length) +'\n' : '') +
+  return (metadata ? metadata +'\n' : '') +
     bitmap.reduce(function(out,row) {
       out.push(row.join(''));
       return out;
@@ -636,6 +643,25 @@ function detectPalette(pal, pdata) {
     // For bit depth take into account transparency (color idx #0)
     return Math.ceil(Math.log2(colors.length+1))
   }
+}
+
+function metadata(pdata) {
+  const { id, w, h } = pdata
+
+  let ret = `! ${id} ${w}x${h}`
+
+  if (pdata.frames > 1) {
+    ret += `x${pdata.frames}`
+  }
+
+  if (pdata.palette.length > 2) {
+    const pc = pdata.palette.slice(1).map(color => color.reduce(
+      (a,b) => a + b.toString(16).padStart(2,'0'), '#'
+    ))
+    ret += `@${pc.join(',')}`
+  }
+
+  return ret
 }
 
 
