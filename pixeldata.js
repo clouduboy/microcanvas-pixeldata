@@ -654,7 +654,7 @@ function metadata(pdata) {
     ret += `x${pdata.frames}`
   }
 
-  if (pdata.palette.length > 2) {
+  if (pdata.palette && pdata.palette.length > 2) {
     // TODO: alpha handling (slice(0,4))
     const pc = pdata.palette.slice(1).map(color => color.slice(0,3).reduce(
       (a,b) => a + b.toString(16).padStart(2,'0'), '#'
