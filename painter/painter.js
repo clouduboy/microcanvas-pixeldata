@@ -358,7 +358,8 @@ function exec(e) {
       })
       break
 
-    case 'zoom':
+    case 'zoom': // TODO: deprecated
+    case 'view/zoom':
       changeZoom()
       break
   }
