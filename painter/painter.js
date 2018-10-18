@@ -25,13 +25,15 @@ console.log(ctx)
 
 //canvas.addEventListener('click', plot)
 
-//canvas.addEventListener('mousedown', paintstart)
-//canvas.addEventListener('mouseup', paintend)
-//  canvas.addEventListener('mousemove', paint)
-
-canvas.addEventListener('pointerdown', paintstart)
-canvas.addEventListener('pointerup', paintend)
+if ('PointerEvent' in window) {
+  canvas.addEventListener('pointerdown', paintstart)
+  canvas.addEventListener('pointerup', paintend)
   canvas.addEventListener('pointermove', paint)
+} else {
+  canvas.addEventListener('mousedown', paintstart)
+  canvas.addEventListener('mouseup', paintend)
+  canvas.addEventListener('mousemove', paint)
+}
 
 
 // paint tool setting
