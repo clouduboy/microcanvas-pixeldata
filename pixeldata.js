@@ -655,7 +655,8 @@ function metadata(pdata) {
   }
 
   if (pdata.palette.length > 2) {
-    const pc = pdata.palette.slice(1).map(color => color.reduce(
+    // TODO: alpha handling (slice(0,4))
+    const pc = pdata.palette.slice(1).map(color => color.slice(0,3).reduce(
       (a,b) => a + b.toString(16).padStart(2,'0'), '#'
     ))
     ret += `@${pc.join(',')}`
