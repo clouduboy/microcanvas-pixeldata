@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PixelData Explorer</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.27.4/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.27.4/theme/night.min.css">
+    <link rel="stylesheet" href="../lib/codemirror/codemirror.css">
+    <link rel="stylesheet" href="../lib/codemirror/night.css">
 
     <link rel="stylesheet" href="explorer.css">
   </head>
@@ -24,19 +24,20 @@
         </div>
 
         <div id="bitmap" class="bitmap">
-          <canvas id="framestrip" width="128" height="64" style="background: black;image-rendering: -moz-crisp-edges;image-rendering: crisp-edges;"></canvas>
+          <canvas id="framestrip" class="pspreview" width="128" height="64" style="width: 256px; background: black;"></canvas>
         </div>
 
         <div id="logs" class="logs"></div>
       </aside>
     </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.27.4/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.27.4/mode/clike/clike.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.27.4/mode/javascript/javascript.min.js"></script>
+    <script src="../lib/codemirror/codemirror.js"></script>
+    <script src="../lib/codemirror/clike.js"></script>
+    <script src="../lib/codemirror/javascript.js"></script>
 
     <script src="https://cdn.rawgit.com/flaki/microcanvas/master/microcanvas.js"></script>
     <script src="../pixeldata.js"></script>
+
     <script src="explorer.js"></script>
   </body>
 </html>

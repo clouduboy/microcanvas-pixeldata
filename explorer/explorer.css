@@ -66,12 +66,6 @@ main > .sidebar > * {
 
 /* PixelSprite preview */
 .pspreview {
-  display: block;
-  margin: auto;
-
-  border: 1px solid #fff;
-  background: black;
-
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: crisp-edges;
