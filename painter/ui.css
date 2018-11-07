@@ -4,7 +4,14 @@
   top: 0;
   width: 12vmin;
   height: 100vh;
+}
 
+.tool-palette {
+  display: grid;
+  grid-gap: .3rem;
+}
+
+.color-palette {
   display: flex;
   flex-direction: column;
 }
@@ -55,7 +62,6 @@
 
 .tool-palette button {
 	background: #0cf;
-	margin-bottom: .2rem;
 }
 .tool-palette button:active {
   background-color: white;
@@ -103,7 +109,6 @@
 
 .tool-palette button {
   background: #63f;
-  margin-bottom: .6rem;
 }
 
 .tool-palette button.current {
@@ -122,13 +127,9 @@
 }
 
 .tool-palette div {
-  flex: 1;
-  width: 16vw;
-  margin-bottom: .2rem;
-  transition: width 1s ease;
+  width: 88vw;
 
   display: none;
-  border: .2rem solid transparent;
 }
 
 
@@ -137,20 +138,21 @@
 }
 .tool-palette > button.open+div {
   display: flex;
-  animation: .5s ease 0s 1 forwards open-toolbox;
+  animation: .3s ease 0s 1 forwards open-toolbox;
 }
 
 @keyframes open-toolbox {
   0% {
-    /*width: 16vw;*/
-    margin-left: -100vw;
+    transform: translateX(-100vw);
   }
   100% {
-    margin-left: 0;
-    width: 88vw;
+    transform: translateX(0);
   }
 }
 
+.tool-palette > button {
+  max-width: 12vw;
+}
 .tool-palette > div > button {
   margin-right: .5rem;
 }
