@@ -48,7 +48,7 @@ Array.from(document.querySelectorAll('[data-resize]')).forEach(btn => btn.addEve
 Array.from(document.querySelectorAll('[data-scroll]')).forEach(btn => btn.addEventListener('click', scrollCanvas))
 
 // editor actions
-Array.from(document.querySelectorAll('[data-action]')).forEach(btn => btn.addEventListener('click', exec))
+Array.from(document.querySelectorAll('[data-action]')).forEach(btn => tap(btn, exec))
 
 // Zoom tracking
 canvas.addEventListener('wheel', trackWheel)
@@ -86,18 +86,8 @@ setTimeout(_ => {
 }, 1)
 
 
-// toolbar
-document.querySelector('.tool-palette').addEventListener('click', e => {
-  console.log(e.target.dataset.action)
-  // close all others
-  Array.from(document.querySelectorAll('.tool-palette button.open')).forEach(btn => {
-    if (btn !== e.target) btn.classList.remove('open')
-  })
-
-  // toggle current
-  e.target.classList.toggle('open')
-})
-
+// close toolbars
+// TODO: use main group button for switching visibility
 document.body.addEventListener('click', e => {
   Array.from(document.querySelectorAll('.tool-palette button.open')).forEach(btn => {
     if (btn !== e.target) btn.classList.remove('open')
@@ -317,6 +307,25 @@ function deserializeImageData(src) {
 }
 
 function exec(e) {
+  // Expand toolbars
+  if ([
+    'file/', 'view/', 'transform/', 'edit/', 'tool/'
+  ].includes(e.target.dataset.action)) {
+    console.log(e.action, e.target.dataset.action)
+
+    // close all other toolbars
+    Array.from(e.target.parentNode.querySelectorAll('button.open')).forEach(btn => {
+      if (btn !== e.target) {
+        btn.classList.remove('open')
+      }
+    })
+
+    // toggle current
+    if (e.action === 'tap') {
+      e.target.classList.toggle('open')
+    }
+  }
+
   switch(e.target.dataset.action) {
     case 'resize': // TODO: deprecated
     case 'edit/canvas size':
@@ -358,6 +367,18 @@ function exec(e) {
           }
         }, 1)
       })
+      break
+
+    // toplevel view button
+    case 'view/':
+      console.log('view button exec`d', e.action)
+
+      if (e.action == 'tap-hold') {
+        let z = globalState
+        changeZoom(2)
+      } else if (e.action == 'tap-release') {
+        changeZoom(autoZoom())
+      }
       break
 
     case 'zoom': // TODO: deprecated
@@ -461,4 +482,94 @@ function toggleGrid(newState = !globalState.grid) {
 
 function toggleFramestrip() {
   document.body.dataset.framestrip = "on"
+}
+
+
+function tap(element, handler) {
+  let context = {}
+
+  const tapStart = (e) => {
+    console.log(e.type)
+    context.event = { target: e.target }
+    context.start = Date.now()
+    context.startPos = [
+      (e.clientX - e.target.clientLeft) / e.target.clientWidth,
+      (e.clientY - e.target.clientTop) / e.target.clientHeight
+    ]
+
+    e.preventDefault()
+
+    context.longtap = setTimeout(_ => tapEnd({ type: 'longtap-timeout' }), 400)
+  }
+
+  const tapEnd = (e) => {
+    console.log(e.type)
+
+    // cancel - tap wasn't started on this element
+    if (!context.start) {
+      console.log('cancelled tap')
+      context = {}
+      return
+    }
+
+    context.event.action = context.state === 'hold' ? 'tap-release' : 'tap'
+
+
+    context.end = Date.now()
+
+    if (!context.endPos) {
+      context.endPos = context.startPos
+    }
+
+    context.time = context.end-context.start
+    context.dist = Math.sqrt(
+      Math.pow(context.endPos[0]-context.startPos[0], 2) +
+      Math.pow(context.endPos[1]-context.startPos[1], 2)
+    )
+
+    // Was this a longtap?
+    if (e.type === 'longtap-timeout') {
+      if (context.dist < 5) {
+        context.event.action = 'tap-hold'
+        handler.call(element, context.event)
+        context.state = 'hold'
+        return
+      } else {
+        console.log('cancelled long tap')
+        context = {}
+        return
+      }
+
+    // No longtap occured, clear the longtap timer
+    } else {
+      if (context.longtap) {
+        clearTimeout(context.longtap)
+      }
+    }
+
+    e.preventDefault && e.preventDefault()
+    handler.call(element, context.event)
+
+    console.log(context)
+    context = {}
+  }
+
+  const tapMove = (e) => {
+    context.endPos = [
+      (e.clientX - e.target.clientLeft) / e.target.clientWidth,
+      (e.clientY - e.target.clientTop) / e.target.clientHeight
+    ]
+  }
+
+  // tap, longtap, swipe, drag
+  if ('PointerEvent' in window) {
+    // todo: add to an overlay element to track swipes outside of element bounds
+    element.addEventListener('pointerdown', tapStart)
+    element.addEventListener('pointerup',   tapEnd)
+    element.addEventListener('pointermove', tapMove)
+  } else {
+    element.addEventListener('mousedown', tapStart)
+    element.addEventListener('mouseup',   tapEnd)
+    element.addEventListener('mousemove', tapMove)
+  }
 }
