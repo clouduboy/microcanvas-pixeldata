@@ -9,6 +9,14 @@
 .tool-palette {
   display: grid;
   grid-gap: .3rem;
+
+  grid-template-columns: 2fr 1fr 20fr;
+  grid-template-areas: "btn bigbtn rollout";
+  width: 88vw;
+}
+.tool-palette button {
+  grid-column-start: btn;
+  grid-column-end: bigbtn;
 }
 
 .color-palette {
@@ -127,15 +135,23 @@
 }
 
 .tool-palette div {
-  width: 88vw;
+  width: 80vw;
 
   display: none;
 }
 
-
+/*
 .tool-palette > button.open {
   display: none;
 }
+*/
+.tool-palette > button.open {
+  grid-column-end: btn;
+}
+.tool-palette > button.open::before {
+  content: "<"
+}
+
 .tool-palette > button.open+div {
   display: flex;
   animation: .3s ease 0s 1 forwards open-toolbox;
@@ -190,4 +206,48 @@
 /* turn off */
 .sizing .corner {
   visibility: hidden;
+}
+
+
+
+/* Color palette */
+.color-palette {
+  display: flex;
+}
+
+.color-palette button {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.color-palette button {
+  box-shadow: .3vh .3vh 3vh rgba(255,255,255,.3) inset,
+    -.3vh -.3vh 3vh rgba(0,0,0,.3) inset;
+
+  border-top: 0px solid transparent;
+  border-bottom: 0px solid transparent;
+}
+
+.color-palette button:hover,
+.color-palette button.active {
+  border-top: 2vh solid transparent;
+  border-bottom: 2vh solid transparent;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+.color-palette button.active,
+.color-palette button.selected {
+  outline: 1px solid white;
+  z-index: 1;
+}
+
+
+
+.tool-palette {
+  pointer-events: none;
+}
+
+.tool-palette button {
+  pointer-events: auto;
 }
