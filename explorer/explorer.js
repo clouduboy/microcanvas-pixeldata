@@ -136,6 +136,11 @@
 
     console.log(px.id, sprite, sprite.pixeldata)
 
+    const svg = FloodFill.pifToSvg(sprite.pixeldata, 'white')
+    console.log(svg)
+    document.getElementById('svgout').innerHTML=`<img src="${svg}">`
+
+
     sidebar.log(px.id||'?')
     sidebar.log(`${px.w}×${px.h} pixels`)
     if (px.frames) sidebar.log(px.frames+' frames')
