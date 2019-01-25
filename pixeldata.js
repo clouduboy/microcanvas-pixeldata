@@ -194,11 +194,11 @@ PixelData.prototype = {
 
   // A "view" into the PixelData object, representing just a single frame
   frame: function(n) {
-    if (n > (this.frames||0)) return this;
+    if ((n|0) > (this.frames||0)) return this;
     var fobj = Object.create(this);
 
     Object.defineProperty(fobj, '$host', { value: this })
-    Object.defineProperty(fobj, '$f', { value: n })
+    Object.defineProperty(fobj, '$f', { value: n|0 })
     Object.defineProperty(fobj, 'frames', { value: 0 })
 
     Object.defineProperty(fobj, 'id', { get: function() {
