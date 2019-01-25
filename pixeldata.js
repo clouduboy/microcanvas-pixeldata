@@ -695,6 +695,24 @@ const MONOMAP = MONOPAL.map(e => e[0])
 const GS5PAL = [ [0,0,0,0], [85,85,85,255], [128,128,128,255], [170,170,170,255], [255,255,255,255] ]
 const GS5MAP = GS5PAL.map(e => e[0])
 
+// The default palette is a PICO8 palette with deep blacks & whites
+const PWPALETTE = `#000000,#20337b,#7e2553,#008331,#ab5236,#454545,#c2c3c7,#ffffff,#ff004d,#ffa300,#ffe727,#00e232,#29adff,#83769c,#ff77a8,#ffccaa`
+const PWPAL = PWPALETTE.split(',').map(hexColorToRgba)
+
+function hexColorToRgba(hex) {
+  const c = hex.replace('#','')
+  return [
+    parseInt(c.slice(0,2),16),
+    parseInt(c.slice(2,4),16),
+    parseInt(c.slice(4,6),16),
+    255
+  ]
+}
+
+function rgbaToHexColor(rgba) {
+  return rgba.slice(0,3).reduce((c,comp) => c+(comp<16?'0':'')+comp.toString(16), '')
+}
+
 function colorsToGrayscale(palette, bitmap) {
   let ret = {}
 
