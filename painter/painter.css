@@ -32,14 +32,14 @@ main {
   display: flex;
 }
 .sizing.x {
-  width: 10vmin;
-  flex-direction: column;
-  justify-content: center;
-}
-.sizing.y {
   height: 10vmin;
   width: calc(var(--artboard-w) - 10vmin);
   flex: 1;
+  justify-content: center;
+}
+.sizing.y {
+  width: 10vmin;
+  flex-direction: column;
   justify-content: center;
 }
 .sizing.corner {
@@ -70,7 +70,20 @@ main {
   display: none;
 }
 
+/* Show sizing overlay only when resizing */
 [data-currently="sizing"] .canvas-overlay.sizing {
+	display: flex;
+	width: 70vw;
+	height: 100vh;
+	position: absolute;
+	top: 0;
+	left: 15vw;
+}
+
+/* Show framestrip overlay only when no other overlays are
+active, and only when this is a multi-frame image */
+[data-frame]:not([data-currently]) .canvas-overlay.framestrip,
+[data-frame][data-currently=""]    .canvas-overlay.framestrip {
 	display: flex;
 	width: 70vw;
 	height: 100vh;
@@ -93,7 +106,8 @@ textarea.dialog {
   color: white;
   font-weight: bold;
   font-family: monospace;
-  font-size: 4vw;
+  font-size: .8rem;
+  padding: .6rem;
   overflow-y: scroll;
 }
 

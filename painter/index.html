@@ -15,20 +15,27 @@
         <canvas class="canvas-overlay"></canvas>
       </div>
       <div class="canvas-overlay sizing">
-        <div class="sizing x">
+        <div class="sizing y">
           <button data-scroll="y--">&uarr;</button>
-          <button data-resize="w++">+</button>
-          <button data-resize="w--">–</button>
+          <button data-resize="h++">+</button>
+          <button data-resize="h--">–</button>
           <button data-scroll="y++">&darr;</button>
         </div>
-        <div class="sizing y">
+        <div class="sizing x">
           <button data-scroll="x--">&larr;</button>
-          <button data-resize="h--">–</button>
-          <button data-resize="h++">+</button>
+          <button data-resize="w--">–</button>
+          <button data-resize="w++">+</button>
           <button data-scroll="x++">&rarr;</button>
         </div>
         <div class="sizing corner">
           <button>set</button>
+        </div>
+      </div>
+      <div class="canvas-overlay framestrip">
+        <div class="framestrip">
+          <button data-action="frame/prev">&larr;</button>
+          <div><!--thumbnails--></div>
+          <button data-action="frame/next">&rarr;</button>
         </div>
       </div>
       <div class="ui-overlay">
@@ -76,18 +83,6 @@ toggle<!-- / pen / eraser / line / box --></button>
             <button data-action="tool/brush-size">size:
 1<!-- / 2 / 3 / 4 / 5--></button>
           </div>
-<!--
-          <button data-set-tool="flip">flip</button>
-          <button data-set-tool="paint">paint</button>
-          <button data-set-tool="erase">erase</button>
-
-          <button data-action="resize">resize</button>
-
-          <button data-action="import">import</button>
-          <button data-action="export">export</button>
-
-          <button data-action="zoom">zoom</button>
--->
         </aside>
         <aside class="color-palette">
           <button data-set-color="rgb(255,0,0)">red</button>

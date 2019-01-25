@@ -13,7 +13,7 @@ let paintcolor = 'white'
 let zoom
 const ZOOM_LEVELS = [2, 8, 16, 32]
 
-const PAL_PICO8 = `black,#20337b,#7e2553,#008331,#ab5236,#454545,#c2c3c7,#ffffff,#ff004d,#ffa300,#ffe727,#00e232,#29adff,#83769c,#ff77a8,#ffccaa`.split(',')
+const PAL_PICO8 = `#000000,#20337b,#7e2553,#008331,#ab5236,#454545,#c2c3c7,#ffffff,#ff004d,#ffa300,#ffe727,#00e232,#29adff,#83769c,#ff77a8,#ffccaa`.split(',')
 
 
 const canvas = document.querySelector('.artboard canvas')
@@ -59,7 +59,7 @@ canvas.addEventListener('wheel', trackWheel)
 setTimeout(_ => {
   // set default palette
   setPalette(PAL_PICO8)
-  paintcolor = '#fff1e8'
+  paintcolor = PAL_PICO8[7]
 
   // load sprite passed in via url
   inUrl = window.location.search.match(/pif=([^\?&]+)/)
@@ -207,6 +207,7 @@ function setPaintColor(e) {
 
 function resizeCanvas(e) {
   let cd = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height)
+  console.log('setcd',cd.data.toString())
 
   let axis, dir
 
@@ -231,15 +232,16 @@ function resizeCanvas(e) {
     ctx.putImageData(cd, 0,0)
   }
 
-  globalState.cw = canvas.width
-  globalState.ch = canvas.height
   updateCanvasStyle()
 
   popup(`${ctx.canvas.width}x${ctx.canvas.height}`, 900)
-  spriteChanged()
+  spriteChanged(cd)
 }
 
 function updateCanvasStyle() {
+  globalState.cw = canvas.width
+  globalState.ch = canvas.height
+
   let s = `--cw: ${globalState.cw}; --ch: ${globalState.ch};`
   if (globalState.zoom) s += ` --zoom: ${globalState.zoom};`
 
@@ -280,15 +282,9 @@ function popup(text, delay) {
   }, 1000+100*text.length)
 }
 
-// TODO: stitch sprites together?
-function imageData() {
-  const imagedata = ctx.getImageData(0,0,canvas.width,canvas.height),
-        pif = new PixelData(imagedata)
 
-  return { imagedata, pif }
-}
 function exportpif() {
-  let sprite = imageData().pif
+  let sprite = fullSprite
   spritename = prompt('Sprite name?', spritename)||'sprite'
   sprite.id = spritename
   return sprite.pif
@@ -385,6 +381,16 @@ function exec(e) {
     case 'view/zoom':
       changeZoom()
       break
+
+    case 'frame/prev':
+    case 'frame/next':
+      let dir = e.target.dataset.action==='frame/prev' ? -1 : +1
+      let frame = parseInt(document.body.dataset.frame,10) + dir
+      if (frame < 0) frame = fullSprite.frames-1
+      if (frame >= fullSprite.frames) frame = 0
+
+      putSprite(fullSprite, undefined, frame)
+      break
   }
 }
 
@@ -436,13 +442,33 @@ function setPalette(pal) {
   })
 }
 
-function spriteChanged() {
-  const id = imageData()
+function spriteChanged(data) {
+  const canvascontents = data || ctx.getImageData(0,0,canvas.width,canvas.height)
+  const canvassprite = new PixelData(canvascontents)
+
+  // Update fullSprite framedata
+  // Because frame content is a slice (view) into the fullSprite
+  // we need to update (mutate) the bitmap contents in-place
+  if (fullSprite) {
+    let cs = canvassprite.bitmap
+    let fs = (fullSprite.frames ? fullSprite.frame(document.body.dataset.frame) : fullSprite).bitmap
+    console.log(fs)
+    for (let y = 0; y<fs.length; ++y) {
+      for (let x = 0; x<fs[y].length; ++x) {
+        fs[y][x] = cs[y][x]
+      }
+    }
+
+    // update fullSprite palette
+    // TODO: proper full palette handling
+    fullSprite.palette = canvassprite.palette
+  }
+
   const serialized = JSON.stringify({
-    width: id.imagedata.width,
-    height: id.imagedata.height,
-    data: Array.from(id.imagedata.data),
-    pif: id.pif.pif
+    width: canvascontents.width,
+    height: canvascontents.height,
+    data: Array.from(canvascontents.data),
+    pif: (fullSprite ? fullSprite : canvassprite).pif
   })
 
   localStorage.setItem('last', serialized)
@@ -457,13 +483,24 @@ function loadSprite(name) {
   putSprite(id, spritename)
 }
 
-function putSprite(sprite, id) {
+var fullSprite
+function putSprite(sprite, id, frame = 0) {
   canvas.width = sprite.width || sprite.w
   canvas.height = sprite.height || sprite.h
   spritename = id || sprite.id || spritename
 
+  // Multiframe sprite
+  if (sprite.frames) {
+    document.body.dataset.frame = frame
+    fullSprite = sprite
+    sprite = fullSprite.frame(frame)
+  }
+
+  // Put the selected image data/frame onto the canvas
   ctx.putImageData(new ImageData(new Uint8ClampedArray(sprite.data || sprite.rgba), canvas.width,canvas.height), 0,0)
-  resizeCanvas()
+
+  // Fix canvas sizing
+  updateCanvasStyle()
 }
 
 function toggleCheckerboard(newState = !globalState.checkerboard) {

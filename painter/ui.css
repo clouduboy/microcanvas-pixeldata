@@ -199,8 +199,8 @@ button[data-action="file/save"] {
 /**/
 
 
-/* Sizing overlay */
-.sizing button {
+/* Canvas overlays */
+.canvas-overlay button {
   border-radius: 50%;
   width: 8vw;
   height: 8vw;
@@ -214,7 +214,7 @@ button[data-action="file/save"] {
   box-shadow: .2em .3em .6em rgba(200,100,255,.6) inset;
 }
 
-.sizing button:hover, .sizing button:focus, .sizing button:active {
+.canvas-overlay button:hover, .canvas-overlay button:focus, .canvas-overlay button:active {
   border-color: white;
 }
 
@@ -265,4 +265,14 @@ button[data-action="file/save"] {
 
 .tool-palette button {
   pointer-events: auto;
+}
+
+
+/* Framestrip overlay */
+.canvas-overlay .framestrip {
+	display: flex;
+	align-self: flex-end;
+	margin: 4rem;
+	flex: 1;
+	justify-content: center;
 }
