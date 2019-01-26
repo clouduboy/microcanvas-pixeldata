@@ -343,6 +343,13 @@ function exec(e) {
       tx.addEventListener('keydown', (e) => { if (e.key === 'Escape') tx.remove() })
       break
 
+    case 'file/share':
+      const sharesprite = fullSprite || canvasSprite()
+      const pifurl = PixelData.pifInUrl(sharesprite)
+      const url = `//create.clouduboy.org/painter/?pif=${pifurl}`
+      window.open(url)
+      break
+
     case 'import': // TODO: deprecated
     case 'file/load':
       tx = document.createElement('textarea')
@@ -504,7 +511,6 @@ function putSprite(sprite, id, frame = 0) {
   }
 
   // Put the selected image data/frame onto the canvas
-  console.log(sprite.rgba)
   const canvasdata = new ImageData(
     sprite.rgba || Uint8ClampedArray.from(sprite.data),
     sprite.w || canvas.width

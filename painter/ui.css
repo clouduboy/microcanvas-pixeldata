@@ -196,6 +196,9 @@ button[data-action="file/load"] {
 button[data-action="file/save"] {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath fill='white' fill-rule='evenodd' d='M5 0h1v1h-5v7h6v-6h1v7h-8v-9h4zM5 4h1v1h-4v-1h2zM2 7v-1h4v1h-3zM4 2h1v1h-3v-1h1zM6 2v-1h1v1z'/%3E%3C/svg%3E")
 }
+button[data-action="file/share"] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath fill='white' fill-rule='evenodd' d='M1 2v-1h1v1zM2 3v-1h1v1zM3 4v-1h1v1zM4 5v-1h1v1zM5 6v-1h1v1zM2 9v-3h-1v-3h-1v-3h3v1h2v1h3v1h1v1h-1v1h-1v2h-1v1h-1v-1h-1v1h-1v1zM7 9v-1h1v1zM9 8v-1h1v1zM8 10v-1h1v1zM8 7v-1h1v1z'/%3E%3C/svg%3E")
+}
 /**/
 
 

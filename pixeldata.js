@@ -780,10 +780,27 @@ function hexColor3to6(component) {
   return (component<<4|component)
 }
 
+function pifInUrl(pif) {
+  if (!pif) return ''
+  if (typeof pif === 'object') pif = pif.pif
+
+  // Replace newlines with vertical bars to save on url space
+  // and improve readability somewhat
+  return encodeURIComponent(
+    pif.replace(/\n+/g, '|')
+  // Further encode special chars
+  ).replace(
+    /[!'()*]/g,
+    c => '%' + c.charCodeAt(0).toString(16)
+  )
+}
+
+
 
 
 PixelData.codeToPif = loadCode
 PixelData.loadPif = loadPif
+PixelData.pifInUrl = pifInUrl
 
 PixelData.util = {
   cleanComments, arrayInitializerContent, rgba2bitmap, rgba2c16, rgba2c8, hexColor3to6
