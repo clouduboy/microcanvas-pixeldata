@@ -273,6 +273,15 @@ button[data-action="file/save"] {
 	display: flex;
 	align-self: flex-end;
 	margin: 4rem;
+  gap: .3rem;
 	flex: 1;
 	justify-content: center;
+}
+
+.canvas-overlay.framestrip {
+  pointer-events: none;
+}
+
+.canvas-overlay.framestrip button {
+  pointer-events: auto;
 }

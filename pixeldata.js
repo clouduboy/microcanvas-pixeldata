@@ -376,12 +376,13 @@ function bitmap2rgba(bitmap, pal) { //TODO: frames
 }
 
 function rgba2bitmap(rgba,w,h) {
-  let bitmap = Array(h).fill(1).map(_ => []);
+  const pixels = rgba.reduce(rgbaToPixels, []);
+  const bitmap = Array(h).fill(1).map(_ => []);
   let pal = [];
 
   let x = 0, y = 0
-  rgba.reduce(rgbaToPixels, []).forEach(px => {
-    let idx = colorIndex(pal, px[0], px[1], px[2])
+  pixels.forEach(px => {
+    let idx = colorIndex(pal, px)
     bitmap[y][x] = idx
 
     x += 1
@@ -403,7 +404,7 @@ function rgba2bitmap(rgba,w,h) {
   return pdata
 }
 
-function colorIndex(pal, r,g,b, extendPalette=true) {
+function colorIndex(pal, [r,g,b,alpha], extendPalette=true) {
   let i = 0
   while (i<pal.length) {
     if (pal[i][0] === r && pal[i][1] === g && pal[i][2] === b) return i
@@ -413,7 +414,13 @@ function colorIndex(pal, r,g,b, extendPalette=true) {
   // extend palette
   if (!extendPalette) return 0
 
-  pal.push([r,g,b])
+  // If alpha is unspecified, it is taken as 255 except
+  // for 0,0,0 where it's set to 0 (transparency)
+  if (typeof alpha === 'undefined') {
+    alpha = (r == g == b == 0) ? 0 : 255
+  }
+
+  pal.push([r,g,b, alpha])
   return pal.length-1
 }
 

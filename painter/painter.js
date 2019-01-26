@@ -205,9 +205,9 @@ function setPaintColor(e) {
 //pico8 palette: https://ztiromoritz.github.io/pico-8-spick/palette_numbers.png
 //dawnbringer (cats&coins) palette: http://pixeljoint.com/forum/forum_posts.asp?TID=12795
 
+// TODO: this currently fails for multi-frame sprites
 function resizeCanvas(e) {
   let cd = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height)
-  console.log('setcd',cd.data.toString())
 
   let axis, dir
 
@@ -284,7 +284,7 @@ function popup(text, delay) {
 
 
 function exportpif() {
-  let sprite = fullSprite
+  let sprite = fullSprite || canvasSprite()
   spritename = prompt('Sprite name?', spritename)||'sprite'
   sprite.id = spritename
   return sprite.pif
@@ -442,15 +442,19 @@ function setPalette(pal) {
   })
 }
 
-function spriteChanged(data) {
-  const canvascontents = data || ctx.getImageData(0,0,canvas.width,canvas.height)
+function canvasSprite() {
+  const canvascontents = ctx.getImageData(0, 0, canvas.width, canvas.height)
   const canvassprite = new PixelData(canvascontents)
+  return canvassprite
+}
+function spriteChanged(data) {
+  newsprite = data ? new PixelData(data) : canvasSprite()
 
   // Update fullSprite framedata
   // Because frame content is a slice (view) into the fullSprite
   // we need to update (mutate) the bitmap contents in-place
   if (fullSprite) {
-    let cs = canvassprite.bitmap
+    let cs = newsprite.bitmap
     let fs = (fullSprite.frames ? fullSprite.frame(document.body.dataset.frame) : fullSprite).bitmap
     console.log(fs)
     for (let y = 0; y<fs.length; ++y) {
@@ -461,14 +465,17 @@ function spriteChanged(data) {
 
     // update fullSprite palette
     // TODO: proper full palette handling
-    fullSprite.palette = canvassprite.palette
+    fullSprite.palette = newsprite.palette
+
+  } else {
+    fullSprite = newsprite
   }
 
   const serialized = JSON.stringify({
     width: canvascontents.width,
     height: canvascontents.height,
     data: Array.from(canvascontents.data),
-    pif: (fullSprite ? fullSprite : canvassprite).pif
+    pif: (fullSprite ? fullSprite : newsprite).pif
   })
 
   localStorage.setItem('last', serialized)
@@ -497,7 +504,13 @@ function putSprite(sprite, id, frame = 0) {
   }
 
   // Put the selected image data/frame onto the canvas
-  ctx.putImageData(new ImageData(new Uint8ClampedArray(sprite.data || sprite.rgba), canvas.width,canvas.height), 0,0)
+  console.log(sprite.rgba)
+  const canvasdata = new ImageData(
+    sprite.rgba || Uint8ClampedArray.from(sprite.data),
+    sprite.w || canvas.width
+  )
+
+  ctx.putImageData(canvasdata, 0,0)
 
   // Fix canvas sizing
   updateCanvasStyle()

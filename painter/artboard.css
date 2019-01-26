@@ -27,6 +27,7 @@
   --canvasw: calc(var(--cw) * var(--pixelsize) );
   --canvash: calc(var(--ch) * var(--pixelsize) );
 
+  flex: none;
   width: var(--canvasw);
   height: var(--canvash);
 
