@@ -363,6 +363,7 @@ function exec(e) {
           let sprite = new PixelData(tx.value)
           if (sprite) {
             putSprite(sprite)
+            spriteChanged()
             changeZoom(autoZoom())
             tx.remove()
           } else {
@@ -455,7 +456,8 @@ function canvasSprite() {
   return canvassprite
 }
 function spriteChanged(data) {
-  newsprite = data ? new PixelData(data) : canvasSprite()
+  const canvascontents = data || ctx.getImageData(0, 0, canvas.width, canvas.height)
+  const newsprite = new PixelData(canvascontents)
 
   // Update fullSprite framedata
   // Because frame content is a slice (view) into the fullSprite
@@ -463,7 +465,7 @@ function spriteChanged(data) {
   if (fullSprite) {
     let cs = newsprite.bitmap
     let fs = (fullSprite.frames ? fullSprite.frame(document.body.dataset.frame) : fullSprite).bitmap
-    console.log(fs)
+
     for (let y = 0; y<fs.length; ++y) {
       for (let x = 0; x<fs[y].length; ++x) {
         fs[y][x] = cs[y][x]
@@ -493,12 +495,15 @@ function loadSprite(name) {
   const storage = localStorage.getItem(name ? 'saved-'+spritename : 'last')
   if (!storage) return
 
-  const id = JSON.parse(storage)
-  putSprite(id, spritename)
+  const imagedata = JSON.parse(storage)
+  const sprite = imagedata.pif ? new PixelData(imagedata.pif) : imagedata
+
+  putSprite(sprite, spritename)
 }
 
 var fullSprite
 function putSprite(sprite, id, frame = 0) {
+  console.log(sprite)
   canvas.width = sprite.width || sprite.w
   canvas.height = sprite.height || sprite.h
   spritename = id || sprite.id || spritename
@@ -508,6 +513,9 @@ function putSprite(sprite, id, frame = 0) {
     document.body.dataset.frame = frame
     fullSprite = sprite
     sprite = fullSprite.frame(frame)
+  } else {
+    delete document.body.dataset.frame
+    fullSprite = sprite
   }
 
   // Put the selected image data/frame onto the canvas
