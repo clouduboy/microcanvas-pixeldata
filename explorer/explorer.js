@@ -136,9 +136,15 @@
 
     console.log(px.id, sprite, sprite.pixeldata)
 
-    const svg = FloodFill.pifToSvg(sprite.pixeldata, 'white')
-    console.log(svg)
-    document.getElementById('svgout').innerHTML=`<img src="${svg}">`
+    // TODO: currently failing on color sprites
+    try {
+      const svg = FloodFill.pifToSvg(sprite.pixeldata, 'white')
+      console.log(svg)
+      document.getElementById('svgout').innerHTML=`<img src="${svg}">`
+    }
+    catch(e) {
+      console.log(e)
+    }
 
 
     sidebar.log(px.id||'?')
